@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:lets_shop_admin/service/category.dart';
 import 'package:lets_shop_admin/service/brand.dart';
 
@@ -18,7 +19,7 @@ class _AddProductState extends State<AddProduct> {
   List<DropdownMenuItem<String>> categoriesDropDown =
       <DropdownMenuItem<String>>[];
   List<DropdownMenuItem<String>> brandsDropDown = <DropdownMenuItem<String>>[];
-  String _currentCategory = 'test';
+  String _currentCategory;
   String _currentBrand;
   Color white = Colors.white;
   Color black = Colors.black;
@@ -29,18 +30,23 @@ class _AddProductState extends State<AddProduct> {
   void initState() {
     _getCategories();
     /*_getBrands();*/
-    /*categoriesDropDown = */getCategoriesDropDown();
+    /*categoriesDropDown = */
+    getCategoriesDropDown();
     print(categoriesDropDown.length);
     /*_currentCategory = categoriesDropDown[0].value;*/
   }
 
-  /*List<DropdownMenuItem<String>> */getCategoriesDropDown() {
+  /*List<DropdownMenuItem<String>> */
+  getCategoriesDropDown() {
     List<DropdownMenuItem<String>> items = new List();
-    for(int i = 0; i < categories.length; i++){
+    for (int i = 0; i < categories.length; i++) {
       setState(() {
-        categoriesDropDown.insert(0, DropdownMenuItem(child: Text(categories[i]['category']),
-          value: categories[i]['category'],
-        ));
+        categoriesDropDown.insert(
+            0,
+            DropdownMenuItem(
+              child: Text(categories[i]['category']),
+              value: categories[i]['category'],
+            ));
       });
     }
 /*    for (DocumentSnapshot category in categories) {
@@ -68,7 +74,7 @@ class _AddProductState extends State<AddProduct> {
       ),
       body: Form(
         key: _formKey,
-        child: Column(
+        child: ListView(
           children: <Widget>[
             Row(
               children: <Widget>[
@@ -81,7 +87,7 @@ class _AddProductState extends State<AddProduct> {
                       onPressed: () {},
                       child: Padding(
                         padding:
-                            const EdgeInsets.fromLTRB(8.0, 40.0, 8.0, 40.0),
+                            const EdgeInsets.fromLTRB(8.0, 70.0, 8.0, 70.0),
                         child: new Icon(Icons.add, color: grey),
                       ),
                     ),
@@ -96,7 +102,7 @@ class _AddProductState extends State<AddProduct> {
                       onPressed: () {},
                       child: Padding(
                         padding:
-                            const EdgeInsets.fromLTRB(8.0, 40.0, 8.0, 40.0),
+                            const EdgeInsets.fromLTRB(8.0, 70.0, 8.0, 70.0),
                         child: new Icon(Icons.add, color: grey),
                       ),
                     ),
@@ -111,7 +117,7 @@ class _AddProductState extends State<AddProduct> {
                       onPressed: () {},
                       child: Padding(
                         padding:
-                            const EdgeInsets.fromLTRB(8.0, 40.0, 8.0, 40.0),
+                            const EdgeInsets.fromLTRB(8.0, 70.0, 8.0, 70.0),
                         child: new Icon(Icons.add, color: grey),
                       ),
                     ),
@@ -141,21 +147,71 @@ class _AddProductState extends State<AddProduct> {
               ),
             ),
 
-              Expanded(
-                  child: ListView.builder(
-                    itemCount: categories.length,
-                      itemBuilder: (context, index){
-                      return ListTile(
-                        title: Text(categories[index]['category']),
-                      );
-                      }))
-/*            Center(
-              child: DropdownButton(
-                value: _currentCategory,
-                items: categoriesDropDown,
-                onChanged: changeSelectedCategory,
+//          For SELECT CATEGORY
+            Visibility(
+                visible: _currentCategory != null || _currentCategory == '',
+                child: Text(_currentCategory ?? 'null',
+                    style: TextStyle(color: redAccent))),
+
+//          TYPE SUGGESTION SEARCHING Categories
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TypeAheadField(
+                textFieldConfiguration: TextFieldConfiguration(
+                    autofocus: false,
+                    decoration: InputDecoration(hintText: 'add category')),
+                suggestionsCallback: (pattern) async {
+                  return await _categoryService.getSuggestions(pattern);
+                },
+                itemBuilder: (context, suggestion) {
+                  return ListTile(
+                    leading: Icon(Icons.category_outlined),
+                    title: Text(suggestion['category']),
+                  );
+                },
+                onSuggestionSelected: (suggestion) {
+                  setState(() {
+                    _currentCategory = suggestion['category'];
+                  });
+                },
               ),
-            )*/
+            ),
+
+//          FOR SELECT BRAND
+            Visibility(
+                visible: _currentBrand != null || _currentBrand == '',
+                child: Text(_currentBrand ?? 'null',
+                    style: TextStyle(color: redAccent))),
+
+//          TYPE SUGGESTION SEARCHING Brands
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TypeAheadField(
+                textFieldConfiguration: TextFieldConfiguration(
+                    autofocus: false,
+                    decoration: InputDecoration(hintText: 'add brand')),
+                suggestionsCallback: (pattern) async {
+                  return await _brandService.getSuggestions(pattern);
+                },
+                itemBuilder: (context, suggestion) {
+                  return ListTile(
+                    leading: Icon(Icons.category_outlined),
+                    title: Text(suggestion['brand']),
+                  );
+                },
+                onSuggestionSelected: (suggestion) {
+                  setState(() {
+                    _currentBrand = suggestion['brand'];
+                  });
+                },
+              ),
+            ),
+
+            FlatButton(
+                color: redAccent,
+                textColor: white,
+                onPressed: () {},
+                child: Text('Add Product'))
           ],
         ),
       ),

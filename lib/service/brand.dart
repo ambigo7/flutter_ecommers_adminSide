@@ -14,15 +14,15 @@ class BrandService{
     _firestore.collection(ref).doc(brandId).set({'brand': name});
   }
 
-  Future<List<DocumentSnapshot>> getBrand(){
-    return _firestore.collection(ref).get().then((snaps){
-      return snaps.docs;
-    });
-/*    Stream<QuerySnapshot> snapshots =  _firestore.collection(ref).snapshots();
-    List brands;
-    snapshots.forEach((snap) {
-      brands = snap.docs[];
-      brands.insert(0, snap.docs);
-    });*/
-  }
+// Get data brands
+  Future<List<DocumentSnapshot>> getBrand() =>
+      _firestore.collection(ref).get().then((snaps){
+        return snaps.docs;
+      });
+
+// Get data suggestion for auto complete search
+  Future<List<DocumentSnapshot>> getSuggestions(String suggestion) =>
+      _firestore.collection(ref).where('brand', isEqualTo: suggestion).get().then((snap){
+        return snap.docs;
+      });
 }
