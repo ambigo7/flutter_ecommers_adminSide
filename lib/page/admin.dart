@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:lets_shop_admin/service/brand.dart';
 import 'package:lets_shop_admin/service/category.dart';
 
+import 'add_product.dart';
+
 enum Page { dashboard, manage }
 
 class Admin extends StatefulWidget {
@@ -201,7 +203,9 @@ class _AdminState extends State<Admin> {
             ListTile(
               leading: Icon(Icons.add),
               title: Text('Add product'),
-              onTap: () {},
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context)=> AddProduct()));
+              },
             ),
             Divider(),
             ListTile(
