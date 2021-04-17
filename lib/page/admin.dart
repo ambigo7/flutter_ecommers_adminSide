@@ -93,8 +93,7 @@ class _AdminState extends State<Admin> {
               ),
             ),
             Expanded(
-                child: GridView(
-              gridDelegate:
+                child: GridView(gridDelegate:
                   SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
               children: <Widget>[
                 Padding(
@@ -204,7 +203,8 @@ class _AdminState extends State<Admin> {
               leading: Icon(Icons.add),
               title: Text('Add product'),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=> AddProduct()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => AddProduct()));
               },
             ),
             Divider(),
@@ -274,14 +274,12 @@ class _AdminState extends State<Admin> {
               }
               Fluttertoast.showToast(msg: 'Successfully created a category');
             },
-            child: Text('ADD',
-                style: TextStyle(color: active))),
+            child: Text('ADD', style: TextStyle(color: active))),
         FlatButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            child: Text('Cancel',
-                style: TextStyle(color: active)))
+            child: Text('Cancel', style: TextStyle(color: active)))
       ],
     );
 
@@ -312,10 +310,7 @@ class _AdminState extends State<Admin> {
               }
               Fluttertoast.showToast(msg: 'Successfully created a brand');
             },
-            child: Text('ADD',
-                style: TextStyle(color: active)
-            )
-        ),
+            child: Text('ADD', style: TextStyle(color: active))),
         FlatButton(
             onPressed: () {
               Navigator.pop(context);
@@ -323,8 +318,7 @@ class _AdminState extends State<Admin> {
             child: Text(
               'Cancel',
               style: TextStyle(color: active),
-            )
-        )
+            ))
       ],
     );
 
