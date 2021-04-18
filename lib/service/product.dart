@@ -24,5 +24,11 @@ class ProductService{
       'imageUrl': images
 
     });
+
   }
+  // Get data PRoducts
+  Future<List<DocumentSnapshot>> getProducts() =>
+      _firestore.collection(ref).get().then((snaps) {
+        return snaps.docs;
+      });
 }

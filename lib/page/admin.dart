@@ -1,3 +1,5 @@
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -6,6 +8,8 @@ import 'package:intl/intl.dart';
 
 import 'package:lets_shop_admin/service/brand.dart';
 import 'package:lets_shop_admin/service/category.dart';
+import 'package:lets_shop_admin/service/product.dart';
+import 'package:lets_shop_admin/service/user.dart';
 
 import 'add_product.dart';
 
@@ -17,6 +21,11 @@ class Admin extends StatefulWidget {
 }
 
 class _AdminState extends State<Admin> {
+  CategoryService _categoryService = CategoryService();
+  BrandService _brandService = BrandService();
+  ProductService _productService = ProductService();
+  UserService _userService = UserService();
+
   Page _selectedPage = Page.dashboard;
   Color active = Colors.deepOrangeAccent[700];
   Color noActive = Colors.grey;
@@ -24,11 +33,55 @@ class _AdminState extends State<Admin> {
   TextEditingController brandController = TextEditingController();
   GlobalKey<FormState> _categoryFormKey = GlobalKey();
   GlobalKey<FormState> _brandFormKey = GlobalKey();
-  BrandService _brandService = BrandService();
-  CategoryService _categoryService = CategoryService();
 
   //  ====CREATE MONEY CURRENCY FORMATTER====
   final formatCurrency = new NumberFormat.simpleCurrency(locale: 'id_ID');
+
+  int countCategory;
+  int countBrand;
+  int countProduct;
+  int countUser;
+
+  _getCategories() async {
+    List<DocumentSnapshot> data = await _categoryService.getCategories();
+    print('${data.length}');
+    setState(() {
+      countCategory = data.length;
+    });
+  }
+
+  _getBrands() async {
+    List<DocumentSnapshot> data = await _brandService.getBrand();
+    print('${data.length}');
+    setState(() {
+      countBrand = data.length;
+    });
+  }
+
+  _getProducts() async {
+    List<DocumentSnapshot> data = await _productService.getProducts();
+    print('${data.length}');
+    setState(() {
+      countProduct = data.length;
+    });
+  }
+
+  _getUsers() async {
+    List<DocumentSnapshot> data = await _userService.getUsers();
+    print('${data.length}');
+    setState(() {
+      countUser = data.length;
+    });
+  }
+
+  @override
+  void initState() {
+    _getCategories();
+    _getBrands();
+    _getProducts();
+    _getUsers();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -105,13 +158,48 @@ class _AdminState extends State<Admin> {
                           icon: Icon(Icons.person_outline),
                           label: Text('Users')),
                       subtitle: Text(
-                        '7',
+                        '$countUser',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: active, fontSize: 60.0),
                       ),
                     ),
                   ),
                 ),
+
+                Padding(
+                  padding: const EdgeInsets.all(22.0),
+                  child: Card(
+                    child: ListTile(
+                      title: FlatButton.icon(
+                          onPressed: null,
+                          icon: Icon(Icons.track_changes),
+                          label: Text("Producs")),
+                      subtitle: Text(
+                        '$countProduct',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: active, fontSize: 60.0),
+                      ),
+                    ),
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.all(22.0),
+                  child: Card(
+                    child: ListTile(
+                      title: FlatButton.icon(
+                          onPressed: null,
+                          icon: Icon(Icons.assignment_turned_in_outlined),
+                          label: Text("Brand")),
+                      subtitle: Text(
+                        '$countBrand',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: active, fontSize: 60.0),
+                      ),
+                    ),
+                  ),
+                ),
+
                 Padding(
                   padding: const EdgeInsets.all(18.0),
                   child: Card(
@@ -121,28 +209,14 @@ class _AdminState extends State<Admin> {
                           icon: Icon(Icons.category_outlined),
                           label: Text('Categories')),
                       subtitle: Text(
-                        '20',
+                        '$countCategory',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: active, fontSize: 60.0),
                       ),
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(22.0),
-                  child: Card(
-                    child: ListTile(
-                        title: FlatButton.icon(
-                            onPressed: null,
-                            icon: Icon(Icons.track_changes),
-                            label: Text("Producs")),
-                        subtitle: Text(
-                          '120',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: active, fontSize: 60.0),
-                        )),
-                  ),
-                ),
+
                 Padding(
                   padding: const EdgeInsets.all(18.0),
                   child: Card(
