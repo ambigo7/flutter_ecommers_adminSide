@@ -45,8 +45,8 @@ class _AddProductState extends State<AddProduct> {
 
   bool isLoading= false;
 
-  String _currentCategory;
-  String _currentBrand;
+  String _currentCategory = "";
+  String _currentBrand = "";
 
   Color white = Colors.white;
   Color black = Colors.black;
@@ -532,10 +532,12 @@ class _AddProductState extends State<AddProduct> {
             imageUrl2 = await snapshot2.ref.getDownloadURL();
             imageUrl3 = await snapshot3.ref.getDownloadURL();
             List<String> imageList = [imageUrl1, imageUrl2, imageUrl3];
-            print(imageList);
+
 
             _productService.uploadProduct(
                 productName: productNameController.text,
+                category: _currentCategory,
+                brand: _currentBrand,
                 price: double.parse(priceController.text),
                 sizes: selectedSizes,
                 images: imageList,
@@ -544,8 +546,8 @@ class _AddProductState extends State<AddProduct> {
             setState(() {
               isLoading = false;
             });
-            Fluttertoast.showToast(msg: 'Product added successfully');
             Navigator.pop(context);
+            Fluttertoast.showToast(msg: 'Product added successfully');
           });
         } else {
           setState(() {
