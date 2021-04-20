@@ -8,22 +8,12 @@ class ProductService{
   String ref = 'products';
 
   //create product data to cloud firestore
-  void uploadProduct({String productName, String brand, String category, int quantity,List sizes, List images, double price}){
+  void uploadProduct(Map<String, dynamic> data){
     //Generate Key for brandID
     var id = Uuid();
     String productId = id.v1();
 
-    _firestore.collection(ref).doc(productId).set({
-      'name': productName,
-      'id': productId,
-      'price': price,
-      'brand': brand,
-      'category': category,
-      'quantity': quantity,
-      'sizes': sizes,
-      'imageUrl': images
-
-    });
+    _firestore.collection(ref).doc(productId).set(data);
 
   }
   // Get data PRoducts

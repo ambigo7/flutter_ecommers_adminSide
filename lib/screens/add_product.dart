@@ -10,10 +10,12 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 //PACKAGE IMAGE PICKER
 import 'package:image_picker/image_picker.dart';
+import 'package:lets_shop_admin/provider/products_provider.dart';
 
 import 'package:lets_shop_admin/service/category.dart';
 import 'package:lets_shop_admin/service/brand.dart';
 import 'package:lets_shop_admin/service/product.dart';
+import 'package:provider/provider.dart';
 
 class AddProduct extends StatefulWidget {
   @override
@@ -34,16 +36,17 @@ class _AddProductState extends State<AddProduct> {
   List<DocumentSnapshot> categories = <DocumentSnapshot>[];
   List<DocumentSnapshot> brands = <DocumentSnapshot>[];
   List<DropdownMenuItem<String>> categoriesDropDown =
-      <DropdownMenuItem<String>>[];
+  <DropdownMenuItem<String>>[];
   List<DropdownMenuItem<String>> brandsDropDown = <DropdownMenuItem<String>>[];
   List<String> selectedSizes = <String>[];
+  List<String> colors = <String>[];
+  bool onSale = false;
+  bool featured = false;
 
   File _image1;
-  File _image2;
-  File _image3;
   final picker = ImagePicker();
 
-  bool isLoading= false;
+  bool isLoading = false;
 
   String _currentCategory = "";
   String _currentBrand = "";
@@ -60,7 +63,7 @@ class _AddProductState extends State<AddProduct> {
   }
 
   //GET IMAGE
-  Future getImage(int imageNumber) async {
+  Future getImage() async {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
     if (pickedFile == null) return;
 
@@ -68,16 +71,7 @@ class _AddProductState extends State<AddProduct> {
     /*File tmpImg = File(pickedFile.path);*/
     /*tmpImg = await tmpImg.copy(tmpImg.path);*/
 
-    switch (imageNumber) {
-      case 1:
-        setState(() => _image1 = tmpImg);
-        break;
-      case 2:
-        setState(() => _image2 = tmpImg);
-        break;
-      case 3:
-        setState(() => _image3 = tmpImg);
-    }
+    setState(() => _image1 = tmpImg);
   }
 
   List<DropdownMenuItem<String>> getCategoriesDropDown() {
@@ -110,6 +104,7 @@ class _AddProductState extends State<AddProduct> {
 
   @override
   Widget build(BuildContext context) {
+    final productProvider = Provider.of<ProductProvider>(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: white,
@@ -119,9 +114,11 @@ class _AddProductState extends State<AddProduct> {
           style: TextStyle(color: redAccent),
         ),
         //background nya masih white
-        leading: Icon(
-          Icons.close,
-          color: black,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_outlined, color: redAccent,),
+          onPressed: (){
+            Navigator.pop(context);
+          },
         ),
       ),
       body: Form(
@@ -130,46 +127,246 @@ class _AddProductState extends State<AddProduct> {
             : ListView(
           children: <Widget>[
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Expanded(
+                Container(
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: OutlineButton(
-                      borderSide:
-                          BorderSide(color: grey.withOpacity(0.3), width: 2.5),
-                      onPressed: () {
-                        getImage(1);
-                      },
-                      child: _displayImage1(),
+                    child: Container(
+                      width: 120,
+                      child: OutlineButton(
+                        borderSide:
+                        BorderSide(color: grey.withOpacity(0.3), width: 2.5),
+                        onPressed: () {
+                          getImage();
+                        },
+                        child: _displayImage1(),
+                      ),
                     ),
                   ),
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: OutlineButton(
-                      borderSide:
-                          BorderSide(color: grey.withOpacity(0.3), width: 2.5),
-                      onPressed: () {
-                        getImage(2);
-                      },
-                      child: _displayImage2(),
+              ],
+            ),
+            SizedBox(height: 8.0),
+
+            Center(child: Text('Available Colors')),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: InkWell(
+                    onTap: () {
+                      if (productProvider.selectedColors.contains('red')) {
+                        productProvider.removeColor('red');
+                      } else {
+                        productProvider.addColor('red');
+                      }
+                      setState(() {
+                        colors = productProvider.selectedColors;
+                      });
+                    },
+                    child: Container(width: 24, height: 24, decoration: BoxDecoration(
+                        color: productProvider.selectedColors.contains('red') ? Colors.blue : grey,
+                        borderRadius: BorderRadius.circular(15)
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: CircleAvatar(
+                          backgroundColor: Colors.red,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: OutlineButton(
-                      borderSide:
-                          BorderSide(color: grey.withOpacity(0.3), width: 2.5),
-                      onPressed: () {
-                        getImage(3);
-                      },
-                      child: _displayImage3(),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: InkWell(
+                    onTap: () {
+                      if (productProvider.selectedColors.contains('yellow')) {
+                        productProvider.removeColor('yellow');
+                      } else {
+                        productProvider.addColor('yellow');
+                      }
+                      setState(() {
+                        colors = productProvider.selectedColors;
+                      });
+                    },
+                    child: Container(width: 24, height: 24, decoration: BoxDecoration(
+                        color: productProvider.selectedColors.contains('yellow') ? Colors.red : grey,
+                        borderRadius: BorderRadius.circular(15)
+                    ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: CircleAvatar(
+                          backgroundColor: Colors.yellow,
+                        ),
+                      ),
                     ),
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: InkWell(
+                    onTap: () {
+                      if (productProvider.selectedColors.contains('blue')) {
+                        productProvider.removeColor('blue');
+                      } else {
+                        productProvider.addColor('blue');
+                      }
+                      setState(() {
+                        colors = productProvider.selectedColors;
+                      });
+                    },
+                    child: Container(width: 24, height: 24, decoration: BoxDecoration(
+                        color: productProvider.selectedColors.contains('blue') ? Colors.red : grey,
+                        borderRadius: BorderRadius.circular(15)
+                    ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: CircleAvatar(
+                          backgroundColor: Colors.blue,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: InkWell(
+                    onTap: () {
+                      if (productProvider.selectedColors.contains('green')) {
+                        productProvider.removeColor('green');
+                      } else {
+                        productProvider.addColor('green');
+                      }
+                      setState(() {
+                        colors = productProvider.selectedColors;
+                      });
+                    },
+                    child: Container(width: 24, height: 24, decoration: BoxDecoration(
+                        color: productProvider.selectedColors.contains('green') ? Colors.red : grey,
+                        borderRadius: BorderRadius.circular(15)
+                    ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: CircleAvatar(
+                          backgroundColor: Colors.green,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: InkWell(
+                    onTap: () {
+                      if (productProvider.selectedColors.contains('white')) {
+                        productProvider.removeColor('white');
+                      } else {
+                        productProvider.addColor('white');
+                      }
+                      setState(() {
+                        colors = productProvider.selectedColors;
+                      });
+                    },
+                    child: Container(width: 24, height: 24, decoration: BoxDecoration(
+                        color: productProvider.selectedColors.contains('white') ? Colors.red : grey,
+                        borderRadius: BorderRadius.circular(15)
+                    ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: CircleAvatar(
+                          backgroundColor: white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: InkWell(
+                    onTap: () {
+                      if (productProvider.selectedColors.contains('black')) {
+                        productProvider.removeColor('black');
+                      } else {
+                        productProvider.addColor('black');
+                      }
+                      setState(() {
+                        colors = productProvider.selectedColors;
+                      });
+                    },
+                    child: Container(width: 24, height: 24, decoration: BoxDecoration(
+                        color: productProvider.selectedColors.contains('black') ? Colors.red : grey,
+                        borderRadius: BorderRadius.circular(15)
+                    ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: CircleAvatar(
+                          backgroundColor: black,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            Center(child: Text('Available Sizes')),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Checkbox(
+                    value: selectedSizes.contains('S'),
+                    onChanged: (value) => changeSelectedSizes('S')),
+                Text('S'),
+                Checkbox(
+                    value: selectedSizes.contains('M'),
+                    onChanged: (value) => changeSelectedSizes('M')),
+                Text('M'),
+                Checkbox(
+                    value: selectedSizes.contains('L'),
+                    onChanged: (value) => changeSelectedSizes('L')),
+                Text('L'),
+                Checkbox(
+                    value: selectedSizes.contains('XL'),
+                    onChanged: (value) => changeSelectedSizes('XL')),
+                Text('XL'),
+                Checkbox(
+                    value: selectedSizes.contains('XXL'),
+                    onChanged: (value) => changeSelectedSizes('XXL')),
+                Text('XXL'),
+              ],
+            ),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Text('Sale'),
+                    SizedBox(width: 10,),
+                    Switch(value: onSale, onChanged: (value){
+                      setState(() {
+                        onSale = value;
+                      });
+                    })
+                  ],
+                ),
+
+                Row(
+                  children: <Widget>[
+                    Text('Featured'),
+                    SizedBox(width: 10,),
+                    Switch(value: featured, onChanged: (value){
+                      setState(() {
+                        featured = value;
+                      });
+                    })
+                  ],
+                )
               ],
             ),
             SizedBox(height: 8.0),
@@ -178,6 +375,7 @@ class _AddProductState extends State<AddProduct> {
               textAlign: TextAlign.center,
               style: TextStyle(color: redAccent, fontSize: 12),
             ),
+
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
@@ -253,92 +451,6 @@ class _AddProductState extends State<AddProduct> {
                 },
               ),
             ),
-
-            Center(child: Text('Available Sizes')),
-
-            Row(
-              children: <Widget>[
-                Checkbox(
-                    value: selectedSizes.contains('S'),
-                    onChanged: (value) => changeSelectedSizes('S')),
-                Text('S'),
-                Checkbox(
-                    value: selectedSizes.contains('M'),
-                    onChanged: (value) => changeSelectedSizes('M')),
-                Text('M'),
-                Checkbox(
-                    value: selectedSizes.contains('L'),
-                    onChanged: (value) => changeSelectedSizes('L')),
-                Text('L'),
-                Checkbox(
-                    value: selectedSizes.contains('XL'),
-                    onChanged: (value) => changeSelectedSizes('XL')),
-                Text('XL'),
-                Checkbox(
-                    value: selectedSizes.contains('XXL'),
-                    onChanged: (value) => changeSelectedSizes('XXL')),
-                Text('XXL'),
-              ],
-            ),
-
-            Row(
-              children: <Widget>[
-                Checkbox(
-                    value: selectedSizes.contains('32'),
-                    onChanged: (value) => changeSelectedSizes('32')),
-                Text('32'),
-                Checkbox(
-                    value: selectedSizes.contains('34'),
-                    onChanged: (value) => changeSelectedSizes('34')),
-                Text('34'),
-                Checkbox(
-                    value: selectedSizes.contains('36'),
-                    onChanged: (value) => changeSelectedSizes('36')),
-                Text('36'),
-                Checkbox(
-                    value: selectedSizes.contains('37'),
-                    onChanged: (value) => changeSelectedSizes('37')),
-                Text('37'),
-                Checkbox(
-                    value: selectedSizes.contains('38'),
-                    onChanged: (value) => changeSelectedSizes('38')),
-                Text('38'),
-                Checkbox(
-                    value: selectedSizes.contains('39'),
-                    onChanged: (value) => changeSelectedSizes('39')),
-                Text('39'),
-              ],
-            ),
-
-            Row(
-              children: <Widget>[
-                Checkbox(
-                    value: selectedSizes.contains('40'),
-                    onChanged: (value) => changeSelectedSizes('40')),
-                Text('40'),
-                Checkbox(
-                    value: selectedSizes.contains('41'),
-                    onChanged: (value) => changeSelectedSizes('41')),
-                Text('41'),
-                Checkbox(
-                    value: selectedSizes.contains('42'),
-                    onChanged: (value) => changeSelectedSizes('42')),
-                Text('42'),
-                Checkbox(
-                    value: selectedSizes.contains('43'),
-                    onChanged: (value) => changeSelectedSizes('43')),
-                Text('43'),
-                Checkbox(
-                    value: selectedSizes.contains('44'),
-                    onChanged: (value) => changeSelectedSizes('44')),
-                Text('44'),
-                Checkbox(
-                    value: selectedSizes.contains('45'),
-                    onChanged: (value) => changeSelectedSizes('45')),
-                Text('45'),
-              ],
-            ),
-
 //          FOR SELECT BRAND
 /*//          For SELECT CATEGORY
             Visibility(
@@ -471,77 +583,44 @@ class _AddProductState extends State<AddProduct> {
     }
   }
 
-  Widget _displayImage2() {
-    if (_image2 == null) {
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(8.0, 50.0, 8.0, 50.0),
-        child: new Icon(Icons.add, color: grey),
-      );
-    } else {
-      return Image.file(_image2, fit: BoxFit.fill, width: double.infinity);
-    }
-  }
-
-  Widget _displayImage3() {
-    if (_image3 == null) {
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(8.0, 50.0, 8.0, 50.0),
-        child: new Icon(Icons.add, color: grey),
-      );
-    } else {
-      return Image.file(_image3, fit: BoxFit.fill, width: double.infinity);
-    }
-  }
-
   void validateAndUpload() async {
     if (_formKey.currentState.validate()) {
       setState(() {
         isLoading = true;
       });
-      if (_image1 != null && _image2 != null && _image3 != null) {
-        if (selectedSizes.isNotEmpty) {
+      if (_image1 != null) {
+        if (selectedSizes.isNotEmpty && colors.isNotEmpty) {
           String imageUrl1;
-          String imageUrl2;
-          String imageUrl3;
 
           final firebase_storage.FirebaseStorage storage =
               firebase_storage.FirebaseStorage.instance;
 
           final String picture1 =
-              '${DateTime.now().millisecondsSinceEpoch.toString()}.jpg';
+              '${DateTime
+              .now()
+              .millisecondsSinceEpoch
+              .toString()}.jpg';
           firebase_storage.UploadTask uploadTask1 =
-              storage.ref().child(picture1).putFile(_image1);
-
-          final String picture2 =
-              '${DateTime.now().millisecondsSinceEpoch.toString()}.jpg';
-          firebase_storage.UploadTask uploadTask2 =
-              storage.ref().child(picture2).putFile(_image2);
-
-          final String picture3 =
-              '${DateTime.now().millisecondsSinceEpoch.toString()}.jpg';
-          firebase_storage.UploadTask uploadTask3 =
-              storage.ref().child(picture3).putFile(_image3);
+          storage.ref().child(picture1).putFile(_image1);
 
           firebase_storage.TaskSnapshot snapshot1 =
-              await uploadTask1.then((snapshot) => snapshot);
-          firebase_storage.TaskSnapshot snapshot2 =
-              await uploadTask2.then((snapshot) => snapshot);
+          await uploadTask1.then((snapshot) => snapshot);
 
-          uploadTask3.then((snapshot3) async {
+          uploadTask1.then((snapshot) async {
             imageUrl1 = await snapshot1.ref.getDownloadURL();
-            imageUrl2 = await snapshot2.ref.getDownloadURL();
-            imageUrl3 = await snapshot3.ref.getDownloadURL();
-            List<String> imageList = [imageUrl1, imageUrl2, imageUrl3];
 
-
-            _productService.uploadProduct(
-                productName: productNameController.text,
-                category: _currentCategory,
-                brand: _currentBrand,
-                price: double.parse(priceController.text),
-                sizes: selectedSizes,
-                images: imageList,
-                quantity: int.parse(productQtyController.text));
+            _productService.uploadProduct({
+              "name": productNameController.text,
+              "price": double.parse(priceController.text),
+              "sizes": selectedSizes,
+              "color": colors,
+              "images": imageUrl1,
+              "quantity": int.parse(productQtyController.text),
+              "category": _currentCategory,
+              "brand": _currentBrand,
+              "sale": onSale,
+              "featured": featured
+            });
             _formKey.currentState.reset();
             setState(() {
               isLoading = false;
@@ -553,7 +632,7 @@ class _AddProductState extends State<AddProduct> {
           setState(() {
             isLoading = false;
           });
-          Fluttertoast.showToast(msg: 'select at leat one size');
+          Fluttertoast.showToast(msg: 'Colors and Size cannot be empty');
         }
       } else {
         setState(() {
