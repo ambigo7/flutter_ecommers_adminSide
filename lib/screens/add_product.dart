@@ -30,8 +30,8 @@ class _AddProductState extends State<AddProduct> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController productNameController = TextEditingController();
   TextEditingController productQtyController = TextEditingController();
-
   final priceController = TextEditingController();
+  TextEditingController productDescController = TextEditingController();
 
   List<DocumentSnapshot> categories = <DocumentSnapshot>[];
   List<DocumentSnapshot> brands = <DocumentSnapshot>[];
@@ -109,9 +109,12 @@ class _AddProductState extends State<AddProduct> {
       appBar: AppBar(
         backgroundColor: white,
         elevation: 0.1,
-        title: Text(
-          'Add product',
-          style: TextStyle(color: redAccent),
+        title: Padding(
+          padding: const EdgeInsets.only(left:80),
+          child: Text(
+            'Add product',
+            style: TextStyle(color: redAccent),
+          ),
         ),
         //background nya masih white
         leading: IconButton(
@@ -451,6 +454,22 @@ class _AddProductState extends State<AddProduct> {
                 },
               ),
             ),
+
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                keyboardType: TextInputType.multiline,
+                maxLines: 10,
+                controller: productDescController,
+                decoration: InputDecoration(hintText: 'Product Description'),
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'You must enter the product description';
+                  }
+                  return null;
+                },
+              ),
+            ),
 //          FOR SELECT BRAND
 /*//          For SELECT CATEGORY
             Visibility(
@@ -612,6 +631,7 @@ class _AddProductState extends State<AddProduct> {
             _productService.uploadProduct({
               "name": productNameController.text,
               "price": double.parse(priceController.text),
+              "description": productDescController.text,
               "sizes": selectedSizes,
               "color": colors,
               "images": imageUrl1,

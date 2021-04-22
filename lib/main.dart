@@ -10,6 +10,7 @@ void main() async{
   runApp(ChangeNotifierProvider(
       create: (_) => ProductProvider(),
       child: MaterialApp(
+        theme: ThemeData(primaryColor: Colors.deepOrangeAccent[700]),
         debugShowCheckedModeBanner: false,
         home: Admin(),
       )

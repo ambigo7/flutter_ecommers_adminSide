@@ -5,20 +5,19 @@ import 'package:uuid/uuid.dart';
 
 class ProductService{
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  String ref = 'products';
+  String collection = 'products';
 
   //create product data to cloud firestore
   void uploadProduct(Map<String, dynamic> data){
     //Generate Key for brandID
     var id = Uuid();
     String productId = id.v1();
-
-    _firestore.collection(ref).doc(productId).set(data);
-
+    _firestore.collection(collection).doc(productId).set(data);
   }
+
   // Get data PRoducts
   Future<List<DocumentSnapshot>> getProducts() =>
-      _firestore.collection(ref).get().then((snaps) {
+      _firestore.collection(collection).get().then((snaps) {
         return snaps.docs;
       });
 }
