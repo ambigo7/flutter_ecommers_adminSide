@@ -36,11 +36,10 @@ dependencies:
   google_sign_in: ^5.0.1
   shared_preferences: ^2.0.5
   fluttertoast: ^8.0.3
-  cached_network_image: ^3.0.0
   image_picker: ^0.7.4
   provider: ^5.0.0
   intl: ^0.17.0
-  uuid: ^3.0.4
+  uuid: any
   flutter_typeahead: ^3.1.1
   firebase_database: ^6.1.2
 
@@ -48,6 +47,13 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  flutter_launcher_icons: "^0.8.0"
+
+flutter_icons:
+  image_path: "images/adminLogo.png"
+  android: true
+  ios: true
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
