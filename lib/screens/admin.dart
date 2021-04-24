@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 
 import 'package:lets_shop_admin/service/brand.dart';
 import 'package:lets_shop_admin/service/category.dart';
+import 'package:lets_shop_admin/service/order.dart';
 import 'package:lets_shop_admin/service/product.dart';
 import 'package:lets_shop_admin/service/user.dart';
 
@@ -25,6 +26,7 @@ class _AdminState extends State<Admin> {
   BrandService _brandService = BrandService();
   ProductService _productService = ProductService();
   UserService _userService = UserService();
+  OrderService _orderService = OrderService();
 
   Page _selectedPage = Page.dashboard;
   Color active = Colors.deepOrangeAccent[700];
@@ -41,6 +43,7 @@ class _AdminState extends State<Admin> {
   int countBrand;
   int countProduct;
   int countUser;
+  int countOrder;
 
   _getCategories() async {
     List<DocumentSnapshot> data = await _categoryService.getCategories();
@@ -74,12 +77,21 @@ class _AdminState extends State<Admin> {
     });
   }
 
+  _getOrders() async {
+    List<DocumentSnapshot> data = await _orderService.getOrders();
+    print('${data.length}');
+    setState(() {
+      countOrder = data.length;
+    });
+  }
+
   @override
   void initState() {
     _getCategories();
     _getBrands();
     _getProducts();
     _getUsers();
+    _getOrders();
   }
 
 
@@ -240,9 +252,9 @@ class _AdminState extends State<Admin> {
                       title: FlatButton.icon(
                           onPressed: null,
                           icon: Icon(Icons.shopping_cart_outlined),
-                          label: Text('Ordes')),
+                          label: Text('Orders')),
                       subtitle: Text(
-                        '10',
+                        '$countOrder',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: active, fontSize: 60.0),
                       ),
