@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -10,19 +11,25 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 //PACKAGE IMAGE PICKER
 import 'package:image_picker/image_picker.dart';
+import 'package:lets_shop_admin/models/product.dart';
 import 'package:lets_shop_admin/provider/products_provider.dart';
 
 import 'package:lets_shop_admin/service/category.dart';
 import 'package:lets_shop_admin/service/brand.dart';
 import 'package:lets_shop_admin/service/product.dart';
 import 'package:provider/provider.dart';
+import 'package:transparent_image/transparent_image.dart';
 
-class AddProduct extends StatefulWidget {
+class EditProduct extends StatefulWidget {
+  final ProductModel product;
+
+  const EditProduct({Key key, this.product}) : super(key: key);
+
   @override
-  _AddProductState createState() => _AddProductState();
+  _EditProductState createState() => _EditProductState();
 }
 
-class _AddProductState extends State<AddProduct> {
+class _EditProductState extends State<EditProduct> {
   CategoryService _categoryService = CategoryService();
   BrandService _brandService = BrandService();
   ProductService _productService = ProductService();
@@ -42,6 +49,7 @@ class _AddProductState extends State<AddProduct> {
   List<String> colors = <String>[];
   bool onSale = false;
   bool featured = false;
+
 
   File _image1;
   final picker = ImagePicker();
@@ -112,7 +120,7 @@ class _AddProductState extends State<AddProduct> {
         title: Padding(
           padding: const EdgeInsets.only(left:80),
           child: Text(
-            'Add product',
+            'Update Product',
             style: TextStyle(color: redAccent),
           ),
         ),
@@ -173,7 +181,7 @@ class _AddProductState extends State<AddProduct> {
                     child: Container(width: 24, height: 24, decoration: BoxDecoration(
                         color: productProvider.selectedColors.contains('red') ? Colors.blue : grey,
                         borderRadius: BorderRadius.circular(15)
-                      ),
+                    ),
                       child: Padding(
                         padding: const EdgeInsets.all(2.0),
                         child: CircleAvatar(
@@ -383,7 +391,7 @@ class _AddProductState extends State<AddProduct> {
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
                 controller: productNameController,
-                decoration: InputDecoration(hintText: 'Product Name'),
+                decoration: InputDecoration(hintText: widget.product.name),
                 validator: (value) {
                   if (value.isEmpty) {
                     return 'You must enter the product name';
@@ -430,7 +438,7 @@ class _AddProductState extends State<AddProduct> {
               child: TextFormField(
                 controller: productQtyController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(hintText: 'Quantity'),
+                decoration: InputDecoration(hintText: widget.product.quantity.toString()),
                 validator: (value) {
                   if (value.isEmpty) {
                     return 'You must enter the quantity';
@@ -445,7 +453,7 @@ class _AddProductState extends State<AddProduct> {
               child: TextFormField(
                 controller: priceController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(hintText: 'Price'),
+                decoration: InputDecoration(hintText: widget.product.price.toString()),
                 validator: (value) {
                   if (value.isEmpty) {
                     return 'You must enter the quantity';
@@ -461,7 +469,7 @@ class _AddProductState extends State<AddProduct> {
                 keyboardType: TextInputType.multiline,
                 maxLines: 10,
                 controller: productDescController,
-                decoration: InputDecoration(hintText: 'Product Description'),
+                decoration: InputDecoration(hintText: widget.product.description),
                 validator: (value) {
                   if (value.isEmpty) {
                     return 'You must enter the product description';
@@ -537,9 +545,9 @@ class _AddProductState extends State<AddProduct> {
                   color: redAccent,
                   textColor: white,
                   onPressed: () {
-                    validateAndUpload();
+                    validateAndUpdate();
                   },
-                  child: Text('Add Product')),
+                  child: Text('Update Product')),
             )
           ],
         ),
@@ -593,62 +601,99 @@ class _AddProductState extends State<AddProduct> {
 
   Widget _displayImage1() {
     if (_image1 == null) {
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(8.0, 50.0, 8.0, 50.0),
-        child: new Icon(Icons.add, color: grey),
-      );
+      return /*Image.network(widget.product.imageUrl, fit: BoxFit.fill, width: double.infinity);*/
+        Center(
+          child: FadeInImage.memoryNetwork(
+            placeholder: kTransparentImage,
+            image: widget.product.imageUrl,
+            fit: BoxFit.fill,
+            height: 100,
+            width: double.infinity,
+          ),
+        );
     } else {
       return Image.file(_image1, fit: BoxFit.fill, width: double.infinity);
     }
   }
 
-  void validateAndUpload() async {
+  void validateAndUpdate() async {
     if (_formKey.currentState.validate()) {
       setState(() {
         isLoading = true;
       });
-      if (_image1 != null) {
+      if (_displayImage1() != null) {
         if (selectedSizes.isNotEmpty && colors.isNotEmpty) {
           String imageUrl1;
 
           final firebase_storage.FirebaseStorage storage =
               firebase_storage.FirebaseStorage.instance;
 
-          final String picture1 =
-              '${DateTime
-              .now()
-              .millisecondsSinceEpoch
-              .toString()}.jpg';
-          firebase_storage.UploadTask uploadTask1 =
-          storage.ref().child(picture1).putFile(_image1);
-
-          firebase_storage.TaskSnapshot snapshot1 =
-          await uploadTask1.then((snapshot) => snapshot);
-
-          uploadTask1.then((snapshot) async {
-            imageUrl1 = await snapshot1.ref.getDownloadURL();
-
-            _productService.uploadProduct(
-                productNameController.text,
-                priceController.text,
-                productDescController.text,
-                selectedSizes,
-                colors,
-                imageUrl1,
-                picture1,
-                productQtyController.text,
-                _currentCategory,
-                _currentBrand,
-                onSale,
-                featured
+          String old_imgRef = widget.product.imageRef;
+          String productId = widget.product.id;
+          String oldImage_Url = widget.product.imageUrl;
+          if(_image1 == null){
+            _productService.updateProduct(
+              productId,
+              productNameController.text,
+              priceController.text,
+              productDescController.text,
+              selectedSizes,
+              colors,
+              oldImage_Url,
+              old_imgRef,
+              productQtyController.text,
+              _currentCategory,
+              _currentBrand,
+              onSale,
+              featured
             );
             _formKey.currentState.reset();
             setState(() {
               isLoading = false;
             });
             Navigator.pop(context);
-            Fluttertoast.showToast(msg: 'Product added successfully');
-          });
+            Fluttertoast.showToast(msg: 'Product has been updated');
+          }else{
+
+            await storage.ref(old_imgRef).delete();
+            final String picture1 =
+                '${DateTime
+                .now()
+                .millisecondsSinceEpoch
+                .toString()}.jpg';
+            firebase_storage.UploadTask uploadTask1 =
+                storage.ref().child(picture1).putFile(_image1) ?? "";
+
+            firebase_storage.TaskSnapshot snapshot1 =
+            await uploadTask1.then((snapshot) => snapshot);
+            uploadTask1.then((snapshot) async {
+              imageUrl1 = await snapshot1.ref.getDownloadURL();
+
+              _productService.updateProduct(
+                  productId,
+                  productNameController.text,
+                  priceController.text,
+                  productDescController.text,
+                  selectedSizes,
+                  colors,
+                  imageUrl1,
+                  picture1,
+                  productQtyController.text,
+                  _currentCategory,
+                  _currentBrand,
+                  onSale,
+                  featured
+              );
+            _formKey.currentState.reset();
+
+            setState(() {
+              isLoading = false;
+            });
+            Navigator.pop(context);
+            Fluttertoast.showToast(msg: 'Product has been updated');
+            });
+          }
+
         } else {
           setState(() {
             isLoading = false;

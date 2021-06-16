@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 //PACKAGE MONEY FORMATTER
 import 'package:intl/intl.dart';
+import 'package:lets_shop_admin/screens/edit_product_list.dart';
 
 import 'package:lets_shop_admin/service/brand.dart';
 import 'package:lets_shop_admin/service/category.dart';
@@ -62,7 +63,7 @@ class _AdminState extends State<Admin> {
   }
 
   _getProducts() async {
-    List<DocumentSnapshot> data = await _productService.getProducts();
+    List<DocumentSnapshot> data = await _productService.getDashboard_products();
     print('${data.length}');
     setState(() {
       countProduct = data.length;
@@ -122,7 +123,7 @@ class _AdminState extends State<Admin> {
                         });
                       },
                       icon: Icon(
-                        Icons.sort,
+                        Icons.perm_data_setting_outlined,
                         color: _selectedPage == Page.manage ? active : noActive,
                       ),
                       label: Text('Manage')))
@@ -147,6 +148,7 @@ class _AdminState extends State<Admin> {
                   size: 30.0,
                   color: Colors.green,
                 ),
+                //TODO: gimana caranya biar bisa panggil list firebase terus di hitung harga total product
                 label: Text('${formatCurrency.format(150000)}',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 30.0, color: Colors.green)),
@@ -212,7 +214,7 @@ class _AdminState extends State<Admin> {
                   ),
                 ),
 
-                Padding(
+/*                Padding(
                   padding: const EdgeInsets.all(18.0),
                   child: Card(
                     child: ListTile(
@@ -227,7 +229,7 @@ class _AdminState extends State<Admin> {
                       ),
                     ),
                   ),
-                ),
+                ),*/
 
                 Padding(
                   padding: const EdgeInsets.all(18.0),
@@ -286,7 +288,13 @@ class _AdminState extends State<Admin> {
         return ListView(
           children: <Widget>[
             ListTile(
-              leading: Icon(Icons.add),
+              leading: Icon(Icons.shopping_cart_outlined),
+              title: Text('Manage Orders'),
+              onTap: () {},
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.add_circle_outline),
               title: Text('Add product'),
               onTap: () {
                 Navigator.push(context,
@@ -295,9 +303,12 @@ class _AdminState extends State<Admin> {
             ),
             Divider(),
             ListTile(
-              leading: Icon(Icons.change_history_outlined),
-              title: Text('Product list'),
-              onTap: () {},
+              leading: Icon(Icons.edit_outlined),
+              title: Text('Edit Product'),
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => EditProductScreen()));
+              },
             ),
             Divider(),
             ListTile(
@@ -309,12 +320,6 @@ class _AdminState extends State<Admin> {
             ),
             Divider(),
             ListTile(
-              leading: Icon(Icons.category_outlined),
-              title: Text('Category list'),
-              onTap: () {},
-            ),
-            Divider(),
-            ListTile(
               leading: Icon(Icons.add_circle_outline),
               title: Text('Add Brand'),
               onTap: () {
@@ -322,12 +327,6 @@ class _AdminState extends State<Admin> {
               },
             ),
             Divider(),
-            ListTile(
-              leading: Icon(Icons.library_books_outlined),
-              title: Text('Add Product brand list'),
-              onTap: () {},
-            ),
-            Divider()
           ],
         );
         break;

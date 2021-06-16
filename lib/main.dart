@@ -8,7 +8,7 @@ void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(ChangeNotifierProvider(
-      create: (_) => ProductProvider(),
+      create: (_) => ProductProvider.initialize(),
       child: MaterialApp(
         theme: ThemeData(primaryColor: Colors.deepOrangeAccent[700]),
         debugShowCheckedModeBanner: false,
