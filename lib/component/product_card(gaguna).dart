@@ -7,22 +7,26 @@ import 'package:lets_shop_admin/commons/common.dart';
 import 'package:lets_shop_admin/commons/loading.dart';
 import 'package:lets_shop_admin/models/product.dart';
 import 'package:lets_shop_admin/models/product.dart';
-import 'package:lets_shop_admin/screens/edit_product.dart';
+import 'package:lets_shop_admin/screens/product_detail.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-class ProductCard extends StatelessWidget {
+class ProductCard extends StatefulWidget {
   final ProductModel product;
 
   ProductCard({Key key, this.product}) : super(key: key);
 
-  //  ====CREATE MONEY CURRENCY FORMATTER====
+  @override
+  _ProductCardState createState() => _ProductCardState();
+}
+
+class _ProductCardState extends State<ProductCard> {
   final formatCurrency = new NumberFormat.simpleCurrency(locale: 'id_ID');
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () {
-          changeScreen(context, EditProduct(product: product));
+          changeScreen(context, ProductDetail(product: widget.product));
         },
         child: Container(
           decoration: BoxDecoration(
@@ -51,7 +55,7 @@ class ProductCard extends StatelessWidget {
                       Center(
                         child: FadeInImage.memoryNetwork(
                           placeholder: kTransparentImage,
-                          image: product.imageUrl,
+                          image: widget.product.imageUrl,
                           fit: BoxFit.cover,
                           height: 140,
                           width: 120,
@@ -66,26 +70,41 @@ class ProductCard extends StatelessWidget {
                 RichText(
                   text: TextSpan(children: [
                     TextSpan(
-                      text: '${product.name} \n',
+                      text: '${widget.product.name} \n',
                       style: TextStyle(fontSize: 20),
                     ),
                     TextSpan(
-                      text: 'by: ${product.brand} \n\n\n\n\n',
+                      text: 'by: ${widget.product.brand} \n\n',
                       style: TextStyle(fontSize: 16, color: Colors.grey),
                     ),
                     TextSpan(
-                      text: '${formatCurrency.format(product.price)} \t',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      text: widget.product.featured ? 'Featured Product\n' : '\n',
+                      style: TextStyle(
+                          fontSize: 18),
                     ),
                     TextSpan(
-                      text: product.sale ? 'ON SALE' : '',
+                      text: widget.product.sale ? 'ON SALE\n' : '\n',
                       style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w400,
                           color: Colors.red),
-                    )
+                    ),
+                    TextSpan(
+                      text: '${formatCurrency.format(widget.product.price)} \t',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
                   ], style: TextStyle(color: Colors.black)),
-                )
+                ),
+                Expanded(
+                  child: IconButton(
+                      icon: Icon(
+                        Icons.delete_outline_rounded,
+                        color: redAccent,
+                      ),
+                      onPressed: (){
+
+                      }),
+                ),
               ],
             ),
           ),

@@ -12,6 +12,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 //PACKAGE IMAGE PICKER
 import 'package:image_picker/image_picker.dart';
 import 'package:lets_shop_admin/commons/common.dart';
+import 'package:lets_shop_admin/component/product_list.dart';
 import 'package:lets_shop_admin/models/product.dart';
 import 'package:lets_shop_admin/provider/products_provider.dart';
 
@@ -23,16 +24,16 @@ import 'package:transparent_image/transparent_image.dart';
 
 import 'admin.dart';
 
-class EditProduct extends StatefulWidget {
+class ProductDetail extends StatefulWidget {
   final ProductModel product;
 
-  const EditProduct({Key key, this.product}) : super(key: key);
+  const ProductDetail({Key key, this.product}) : super(key: key);
 
   @override
-  _EditProductState createState() => _EditProductState();
+  _ProductDetailState createState() => _ProductDetailState();
 }
 
-class _EditProductState extends State<EditProduct> {
+class _ProductDetailState extends State<ProductDetail> {
   CategoryService _categoryService = CategoryService();
   BrandService _brandService = BrandService();
   ProductService _productService = ProductService();
@@ -659,7 +660,7 @@ class _EditProductState extends State<EditProduct> {
               isLoading = false;
             });
             /*Navigator.pop(context);*/
-            changeScreen(context, Admin());
+            changeScreen(context, ProductList());
             Fluttertoast.showToast(msg: 'Product has been updated');
           }else{
             await storage.ref(old_imgRef).delete();
@@ -692,12 +693,11 @@ class _EditProductState extends State<EditProduct> {
                   featured
               );
             _formKey.currentState.reset();
-
             setState(() {
               isLoading = false;
             });
-           /* Navigator.pop(context);*/
-              changeScreen(context, Admin());
+            /*Navigator.pop(context);*/
+              changeScreen(context, ProductList());
             Fluttertoast.showToast(msg: 'Product has been updated');
             });
           }

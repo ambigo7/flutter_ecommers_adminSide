@@ -73,4 +73,12 @@ class ProductService{
         }
         return products;
       });
+
+  void deleteProduct({String productId}) async {
+    _products
+        .doc(productId)
+        .delete()
+        .then((value) => print('Product has been deleted'));
+  }
+
 }

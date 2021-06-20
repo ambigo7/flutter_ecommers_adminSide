@@ -6,7 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 //PACKAGE MONEY FORMATTER
 import 'package:intl/intl.dart';
 import 'package:lets_shop_admin/provider/products_provider.dart';
-import 'file:///D:/App%20Flutter%20build/lets_shop_admin/lib/component/edit_product_list.dart';
+import 'file:///D:/App%20Flutter%20build/lets_shop_admin/lib/component/product_list.dart';
 
 import 'package:lets_shop_admin/service/brand.dart';
 import 'package:lets_shop_admin/service/category.dart';
@@ -313,7 +313,7 @@ class _AdminState extends State<Admin> {
               onTap: () {
                 productProvider.loadProducts();
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => EditProductScreen()));
+                    MaterialPageRoute(builder: (context) => ProductList()));
               },
             ),
             Divider(),
