@@ -6,7 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 //PACKAGE MONEY FORMATTER
 import 'package:intl/intl.dart';
 import 'package:lets_shop_admin/provider/products_provider.dart';
-import 'package:lets_shop_admin/screens/edit_product_list.dart';
+import 'file:///D:/App%20Flutter%20build/lets_shop_admin/lib/component/edit_product_list.dart';
 
 import 'package:lets_shop_admin/service/brand.dart';
 import 'package:lets_shop_admin/service/category.dart';

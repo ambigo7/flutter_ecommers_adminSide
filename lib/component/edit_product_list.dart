@@ -6,7 +6,7 @@ import 'package:lets_shop_admin/component/product_card.dart';
 import 'package:lets_shop_admin/provider/products_provider.dart';
 import 'package:provider/provider.dart';
 
-import 'edit_product.dart';
+import '../screens/edit_product.dart';
 
 class EditProductScreen extends StatelessWidget {
 
@@ -24,11 +24,6 @@ class EditProductScreen extends StatelessWidget {
         title: CustomText(text: "List of Products", size: 20, color: redAccent, weigth: FontWeight.bold,),
         elevation: 0.0,
         centerTitle: true,
-/*        actions: <Widget>[
-          IconButton(icon: Icon(Icons.shopping_cart_outlined), onPressed: (){
-            changeScreen(context, CartScreen());
-          })
-        ],*/
       ),
       // ? is a null awareness(boleh kalo ga punya nilai)
       body: productProvider.products.length < 1? Column(
