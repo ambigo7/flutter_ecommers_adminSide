@@ -538,6 +538,7 @@ class _AddProductState extends State<AddProduct> {
                   textColor: white,
                   onPressed: () {
                     validateAndUpload();
+                    /*productProvider.loadProducts();*/
                   },
                   child: Text('Add Product')),
             )

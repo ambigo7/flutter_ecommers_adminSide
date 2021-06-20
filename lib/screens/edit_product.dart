@@ -11,6 +11,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 //PACKAGE IMAGE PICKER
 import 'package:image_picker/image_picker.dart';
+import 'package:lets_shop_admin/commons/common.dart';
 import 'package:lets_shop_admin/models/product.dart';
 import 'package:lets_shop_admin/provider/products_provider.dart';
 
@@ -19,6 +20,8 @@ import 'package:lets_shop_admin/service/brand.dart';
 import 'package:lets_shop_admin/service/product.dart';
 import 'package:provider/provider.dart';
 import 'package:transparent_image/transparent_image.dart';
+
+import 'admin.dart';
 
 class EditProduct extends StatefulWidget {
   final ProductModel product;
@@ -546,6 +549,10 @@ class _EditProductState extends State<EditProduct> {
                   textColor: white,
                   onPressed: () {
                     validateAndUpdate();
+                    productProvider.loadProducts();
+/*                    setState(() {
+                      productProvider.loadProducts();
+                    });*/
                   },
                   child: Text('Update Product')),
             )
@@ -651,10 +658,10 @@ class _EditProductState extends State<EditProduct> {
             setState(() {
               isLoading = false;
             });
-            Navigator.pop(context);
+            /*Navigator.pop(context);*/
+            changeScreen(context, Admin());
             Fluttertoast.showToast(msg: 'Product has been updated');
           }else{
-
             await storage.ref(old_imgRef).delete();
             final String picture1 =
                 '${DateTime
@@ -689,7 +696,8 @@ class _EditProductState extends State<EditProduct> {
             setState(() {
               isLoading = false;
             });
-            Navigator.pop(context);
+           /* Navigator.pop(context);*/
+              changeScreen(context, Admin());
             Fluttertoast.showToast(msg: 'Product has been updated');
             });
           }

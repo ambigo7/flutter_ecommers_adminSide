@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 //PACKAGE MONEY FORMATTER
 import 'package:intl/intl.dart';
+import 'package:lets_shop_admin/provider/products_provider.dart';
 import 'package:lets_shop_admin/screens/edit_product_list.dart';
 
 import 'package:lets_shop_admin/service/brand.dart';
@@ -12,6 +13,7 @@ import 'package:lets_shop_admin/service/category.dart';
 import 'package:lets_shop_admin/service/order.dart';
 import 'package:lets_shop_admin/service/product.dart';
 import 'package:lets_shop_admin/service/user.dart';
+import 'package:provider/provider.dart';
 
 import 'add_product.dart';
 
@@ -98,6 +100,7 @@ class _AdminState extends State<Admin> {
 
   @override
   Widget build(BuildContext context) {
+    final productProvider = Provider.of<ProductProvider>(context);
     return Scaffold(
         appBar: AppBar(
           title: Row(
@@ -107,6 +110,7 @@ class _AdminState extends State<Admin> {
                       onPressed: () {
                         setState(() {
                           _selectedPage = Page.dashboard;
+                          productProvider.loadProducts();
                         });
                       },
                       icon: Icon(
@@ -285,6 +289,7 @@ class _AdminState extends State<Admin> {
         );
         break;
       case Page.manage:
+        final productProvider = Provider.of<ProductProvider>(context);
         return ListView(
           children: <Widget>[
             ListTile(
@@ -306,6 +311,7 @@ class _AdminState extends State<Admin> {
               leading: Icon(Icons.edit_outlined),
               title: Text('Edit Product'),
               onTap: () {
+                productProvider.loadProducts();
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => EditProductScreen()));
               },
