@@ -289,6 +289,7 @@ class _AdminState extends State<Admin> {
         );
         break;
       case Page.manage:
+      //TODO: ubah list mange jadi product(nanti ada alert atau modal buat liat product list atau tambah produk), brand, category juga sama
         final productProvider = Provider.of<ProductProvider>(context);
         return ListView(
           children: <Widget>[
