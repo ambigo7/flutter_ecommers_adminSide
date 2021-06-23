@@ -10,12 +10,17 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 //PACKAGE IMAGE PICKER
 import 'package:image_picker/image_picker.dart';
+import 'package:lets_shop_admin/commons/common.dart';
+import 'package:lets_shop_admin/component/custom_text.dart';
+import 'package:lets_shop_admin/provider/app_provider.dart';
 import 'package:lets_shop_admin/provider/products_provider.dart';
 
 import 'package:lets_shop_admin/service/category.dart';
 import 'package:lets_shop_admin/service/brand.dart';
 import 'package:lets_shop_admin/service/product.dart';
 import 'package:provider/provider.dart';
+
+import 'admin.dart';
 
 class AddProduct extends StatefulWidget {
   @override
@@ -28,6 +33,7 @@ class _AddProductState extends State<AddProduct> {
   ProductService _productService = ProductService();
 
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final _key = GlobalKey<ScaffoldState>();
   TextEditingController productNameController = TextEditingController();
   TextEditingController productQtyController = TextEditingController();
   final priceController = TextEditingController();
@@ -105,7 +111,9 @@ class _AddProductState extends State<AddProduct> {
   @override
   Widget build(BuildContext context) {
     final productProvider = Provider.of<ProductProvider>(context);
+    final appProvider = Provider.of<AppProvider>(context);
     return Scaffold(
+      key: _key,
       appBar: AppBar(
         backgroundColor: white,
         elevation: 0.1,
@@ -538,7 +546,7 @@ class _AddProductState extends State<AddProduct> {
                   textColor: white,
                   onPressed: () {
                     validateAndUpload();
-                    /*productProvider.loadProducts();*/
+                    productProvider.loadProducts();
                   },
                   child: Text('Add Product')),
             )
@@ -647,20 +655,33 @@ class _AddProductState extends State<AddProduct> {
             setState(() {
               isLoading = false;
             });
-            Navigator.pop(context);
-            Fluttertoast.showToast(msg: 'Product added successfully');
+            /*Navigator.pop(context);*/
+            changeScreen(context, Admin());
+            _key.currentState.showSnackBar(SnackBar(
+              backgroundColor: white,
+              content: CustomText(text: "Product added successfully", color: redAccent),
+            ));
+            /*Fluttertoast.showToast(msg: 'Product added successfully');*/
           });
         } else {
           setState(() {
             isLoading = false;
           });
-          Fluttertoast.showToast(msg: 'Colors and Size cannot be empty');
+          /*Fluttertoast.showToast(msg: 'Colors and Size cannot be empty');*/
+          _key.currentState.showSnackBar(SnackBar(
+            backgroundColor: white,
+            content: CustomText(text: "Colors and Size cannot be empty", color: redAccent),
+          ));
         }
       } else {
         setState(() {
           isLoading = false;
         });
-        Fluttertoast.showToast(msg: 'Sorry, all the images must be provided');
+        /*Fluttertoast.showToast(msg: 'Sorry, all the images must be provided');*/
+        _key.currentState.showSnackBar(SnackBar(
+            backgroundColor: white,
+            content: CustomText(text: "Sorry, all the images must be provided", color: redAccent),
+        ));
       }
     }
   }

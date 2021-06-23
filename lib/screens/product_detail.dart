@@ -12,6 +12,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 //PACKAGE IMAGE PICKER
 import 'package:image_picker/image_picker.dart';
 import 'package:lets_shop_admin/commons/common.dart';
+import 'package:lets_shop_admin/component/custom_text.dart';
 import 'package:lets_shop_admin/component/product_list.dart';
 import 'package:lets_shop_admin/models/product.dart';
 import 'package:lets_shop_admin/provider/products_provider.dart';
@@ -39,6 +40,7 @@ class _ProductDetailState extends State<ProductDetail> {
   ProductService _productService = ProductService();
 
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final _key = GlobalKey<ScaffoldState>();
   TextEditingController productNameController = TextEditingController();
   TextEditingController productQtyController = TextEditingController();
   final priceController = TextEditingController();
@@ -118,6 +120,7 @@ class _ProductDetailState extends State<ProductDetail> {
   Widget build(BuildContext context) {
     final productProvider = Provider.of<ProductProvider>(context);
     return Scaffold(
+      key: _key,
       appBar: AppBar(
         backgroundColor: white,
         elevation: 0.1,
@@ -660,8 +663,12 @@ class _ProductDetailState extends State<ProductDetail> {
               isLoading = false;
             });
             /*Navigator.pop(context);*/
-            changeScreen(context, ProductList());
-            Fluttertoast.showToast(msg: 'Product has been updated');
+            changeScreen(context, Admin());
+            _key.currentState.showSnackBar(SnackBar(
+              backgroundColor: white,
+              content: CustomText(text: "Product has been updated", color: redAccent),
+            ));
+            /*Fluttertoast.showToast(msg: 'Product has been updated');*/
           }else{
             await storage.ref(old_imgRef).delete();
             final String picture1 =
@@ -697,8 +704,12 @@ class _ProductDetailState extends State<ProductDetail> {
               isLoading = false;
             });
             /*Navigator.pop(context);*/
-              changeScreen(context, ProductList());
-            Fluttertoast.showToast(msg: 'Product has been updated');
+              changeScreen(context, Admin());
+              _key.currentState.showSnackBar(SnackBar(
+                backgroundColor: white,
+                content: CustomText(text: "Product has been updated", color: redAccent),
+              ));
+            /*Fluttertoast.showToast(msg: 'Product has been updated');*/
             });
           }
 
@@ -706,13 +717,21 @@ class _ProductDetailState extends State<ProductDetail> {
           setState(() {
             isLoading = false;
           });
-          Fluttertoast.showToast(msg: 'Colors and Size cannot be empty');
+          /*Fluttertoast.showToast(msg: 'Colors and Size cannot be empty');*/
+          _key.currentState.showSnackBar(SnackBar(
+            backgroundColor: white,
+            content: CustomText(text: "Colors and Size cannot be empty", color: redAccent),
+          ));
         }
       } else {
         setState(() {
           isLoading = false;
         });
-        Fluttertoast.showToast(msg: 'Sorry, all the images must be provided');
+        /*Fluttertoast.showToast(msg: 'Sorry, all the images must be provided');*/
+        _key.currentState.showSnackBar(SnackBar(
+          backgroundColor: white,
+          content: CustomText(text: "Sorry, all the images must be provided", color: redAccent),
+        ));
       }
     }
   }

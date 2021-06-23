@@ -2,9 +2,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:badges/badges.dart';
 
 //PACKAGE MONEY FORMATTER
 import 'package:intl/intl.dart';
+import 'package:lets_shop_admin/commons/common.dart';
 import 'package:lets_shop_admin/provider/products_provider.dart';
 import 'file:///D:/App%20Flutter%20build/lets_shop_admin/lib/component/product_list.dart';
 
@@ -47,6 +49,8 @@ class _AdminState extends State<Admin> {
   int countProduct;
   int countUser;
   int countOrder;
+  int countSold;
+
 
   _getCategories() async {
     List<DocumentSnapshot> data = await _categoryService.getCategories();
@@ -58,7 +62,7 @@ class _AdminState extends State<Admin> {
 
   _getBrands() async {
     List<DocumentSnapshot> data = await _brandService.getBrand();
-    print('${data.length}');
+    print('data ${data.length}');
     setState(() {
       countBrand = data.length;
     });
@@ -66,7 +70,7 @@ class _AdminState extends State<Admin> {
 
   _getProducts() async {
     List<DocumentSnapshot> data = await _productService.getDashboard_products();
-    print('${data.length}');
+    print('Product ${data.length}');
     setState(() {
       countProduct = data.length;
     });
@@ -74,7 +78,7 @@ class _AdminState extends State<Admin> {
 
   _getUsers() async {
     List<DocumentSnapshot> data = await _userService.getUsers();
-    print('${data.length}');
+    print('Users ${data.length}');
     setState(() {
       countUser = data.length;
     });
@@ -82,9 +86,17 @@ class _AdminState extends State<Admin> {
 
   _getOrders() async {
     List<DocumentSnapshot> data = await _orderService.getOrders();
-    print('${data.length}');
+    print('Order ${data.length}');
     setState(() {
       countOrder = data.length;
+    });
+  }
+
+  _getSold() async {
+    List<DocumentSnapshot> data = await _orderService.getSold();
+    print('Sold ${data.length}');
+    setState(() {
+      countSold = data.length;
     });
   }
 
@@ -95,12 +107,15 @@ class _AdminState extends State<Admin> {
     _getProducts();
     _getUsers();
     _getOrders();
+    _getSold();
   }
 
 
   @override
   Widget build(BuildContext context) {
     final productProvider = Provider.of<ProductProvider>(context);
+
+    String _lenghtProduct = productProvider.products.length.toString();
     return Scaffold(
         appBar: AppBar(
           title: Row(
@@ -110,7 +125,11 @@ class _AdminState extends State<Admin> {
                       onPressed: () {
                         setState(() {
                           _selectedPage = Page.dashboard;
-                          productProvider.loadProducts();
+                          _getBrands();
+                          _getProducts();
+                          _getUsers();
+                          _getOrders();
+                          _getSold();
                         });
                       },
                       icon: Icon(
@@ -124,6 +143,7 @@ class _AdminState extends State<Admin> {
                       onPressed: () {
                         setState(() {
                           _selectedPage = Page.manage;
+                          _getOrders();
                         });
                       },
                       icon: Icon(
@@ -152,7 +172,7 @@ class _AdminState extends State<Admin> {
                   size: 30.0,
                   color: Colors.green,
                 ),
-                //TODO: gimana caranya biar bisa panggil list firebase terus di hitung harga total product
+                //TODO: liat alur cart di letshop admin buat itung seluruh Revenue
                 label: Text('${formatCurrency.format(150000)}',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 30.0, color: Colors.green)),
@@ -244,7 +264,7 @@ class _AdminState extends State<Admin> {
                           icon: Icon(Icons.tag_faces_outlined),
                           label: Text('Sold')),
                       subtitle: Text(
-                        '13',
+                        '$countSold',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: active, fontSize: 60.0),
                       ),
@@ -289,52 +309,87 @@ class _AdminState extends State<Admin> {
         );
         break;
       case Page.manage:
-      //TODO: ubah list mange jadi product(nanti ada alert atau modal buat liat product list atau tambah produk), brand, category juga sama
         final productProvider = Provider.of<ProductProvider>(context);
-        return ListView(
-          children: <Widget>[
-            ListTile(
-              leading: Icon(Icons.shopping_cart_outlined),
-              title: Text('Manage Orders'),
-              onTap: () {},
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.add_circle_outline),
-              title: Text('Add product'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AddProduct()));
-              },
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.edit_outlined),
-              title: Text('Edit Product'),
-              onTap: () {
-                productProvider.loadProducts();
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ProductList()));
-              },
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.add_circle_outline),
-              title: Text('Add Category'),
-              onTap: () {
-                _categoryAlert();
-              },
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.add_circle_outline),
-              title: Text('Add Brand'),
-              onTap: () {
-                _brandAlert();
-              },
-            ),
-            Divider(),
-          ],
+        return Center(
+          child: ListView(
+            children: <Widget>[
+              ListTile(
+                leading: countOrder > 0
+                        ? Badge(
+                          position: BadgePosition.topEnd(top: -13, end: -8),
+/*                        animationDuration: Duration(milliseconds: 300),
+                          animationType: BadgeAnimationType.slide,*/
+                          badgeContent: Text(
+                          countOrder.toString(),
+                          style: TextStyle(color: Colors.white),
+                          ),
+                          child: Icon(Icons.shopping_cart_outlined))
+                        : Icon(Icons.shopping_cart_outlined),
+                title: Text('Orders'),
+                onTap: (){
+
+                },
+              ),
+              Divider(),
+              ListTile(
+                leading: Icon(Icons.track_changes),
+                title: Text('Product'),
+                onTap: () {
+                  productModalButtom(context);
+/*                  showModalBottomSheet(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(20),
+                        ),
+                      ),
+                      context: context,
+                      builder: (BuildContext context){
+                        return Container(
+                          height: 200,
+                          child: ListView(
+                            children: <Widget>[
+                              ListTile(
+                                leading: Icon(Icons.add_circle_outline),
+                                title: Text('Add product'),
+                                onTap: () {
+                                  changeScreen(context, AddProduct());
+                                },
+                              ),
+                              Divider(),
+                              ListTile(
+                                leading: Icon(Icons.edit_outlined),
+                                title: Text('Update & Delete Product'),
+                                onTap: () {
+                                  productProvider.loadProducts();
+                                  changeScreen(context, ProductList());
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                  );*/
+                },
+              ),
+/*            Divider(),
+              ListTile(
+                leading: Icon(Icons.add_circle_outline),
+                title: Text('Category'),
+                onTap: () {
+                  _categoryAlert();
+                },
+              ),*/
+              Divider(),
+              ListTile(
+                leading: Icon(Icons.assignment_turned_in_outlined),
+                title: Text('Brand'),
+                onTap: () {
+                  _brandAlert();
+                },
+              ),
+              Divider(),
+            ],
+          ),
         );
         break;
       default:
@@ -415,5 +470,42 @@ class _AdminState extends State<Admin> {
     );
 
     showDialog(context: context, builder: (_) => alert);
+  }
+
+  void productModalButtom(BuildContext context){
+    final productProvider = Provider.of<ProductProvider>(context, listen: false);
+    showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(20),
+          ),
+        ),
+        context: context,
+        builder: (_){
+          return Container(
+            height: 200,
+            child: ListView(
+              children: <Widget>[
+                ListTile(
+                  leading: Icon(Icons.add_circle_outline),
+                  title: Text('Add product'),
+                  onTap: () {
+                    changeScreen(context, AddProduct());
+                  },
+                ),
+                Divider(),
+                ListTile(
+                  leading: Icon(Icons.edit_outlined),
+                  title: Text('Update & Delete Product'),
+                  onTap: () {
+                    productProvider.loadProducts();
+                    changeScreen(context, ProductList());
+                  },
+                ),
+              ],
+            ),
+          );
+        }
+    );
   }
 }
