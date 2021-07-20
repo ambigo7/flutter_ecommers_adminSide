@@ -11,7 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
-import '../screens/product_detail.dart';
+import '../screens/edit_product.dart';
 
 class ProductList extends StatefulWidget {
 
@@ -33,14 +33,12 @@ class _ProductListState extends State<ProductList> {
     return Scaffold(
       key: _key,
       appBar: AppBar(
-        iconTheme: IconThemeData(color: redAccent),
+        iconTheme: IconThemeData(color: blue),
         backgroundColor: white,
         leading: IconButton(icon: Icon(Icons.arrow_back_ios), onPressed: (){
           Navigator.pop(context);
-          //TODO: cari cara biar bisa route page ke manage
-          /*changeScreen(context, _loadScreen());*/
         }),
-        title: CustomText(text: "List of Products", size: 20, color: redAccent, weigth: FontWeight.bold,),
+        title: CustomText(text: "List of Products", size: 20, color: blue, weight: FontWeight.bold,),
         elevation: 0.0,
         centerTitle: true,
       ),
@@ -60,7 +58,7 @@ class _ProductListState extends State<ProductList> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              CustomText(text: "No products Found", color: grey, weigth: FontWeight.w300, size: 22,),
+              CustomText(text: "No products Found", color: grey, weight: FontWeight.w300, size: 22,),
             ],
           )
         ],
@@ -69,7 +67,7 @@ class _ProductListState extends State<ProductList> {
           itemBuilder: (context, index){
             return GestureDetector(
                 onTap: () {
-                  changeScreen(context, ProductDetail(product: productProvider.products[index]));
+                  changeScreen(context, EditProduct(product: productProvider.products[index]));
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -117,7 +115,7 @@ class _ProductListState extends State<ProductList> {
                               style: TextStyle(fontSize: 20),
                             ),
                             TextSpan(
-                              text: 'by: ${productProvider.products[index].brand} \n\n',
+                              text: 'by: ${productProvider.products[index].brand} \n',
                               style: TextStyle(fontSize: 16, color: Colors.grey),
                             ),
                             TextSpan(
@@ -130,6 +128,15 @@ class _ProductListState extends State<ProductList> {
                               style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w400,
+                                  color: Colors.red),
+                            ),
+                            TextSpan(
+                              text: productProvider.products[index].oldPrice != 0
+                                  ? '${formatCurrency.format(productProvider.products[index].oldPrice)}\n' : '\n',
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w400,
+                                  decoration: TextDecoration.lineThrough,
                                   color: Colors.red),
                             ),
                             TextSpan(
@@ -147,16 +154,17 @@ class _ProductListState extends State<ProductList> {
                               onPressed: () async{
                                 appProvider.changeIsLoading();
                                 bool success =
-                                    await productProvider.deleteProduct(productID: productProvider.products[index].id);
+                                    await productProvider.deleteProduct(
+                                        productID: productProvider.products[index].id,
+                                        imageRef:productProvider.products[index].imageRef );
                                 if(success){
-                                  await storage.ref(productProvider.products[index].imageRef).delete();
                                   productProvider.loadProducts();
                                   print("Product deleted");
                                   _key.currentState.showSnackBar(SnackBar(
                                       backgroundColor: white,
                                       content: Text("Product has been deleted",
                                           style: TextStyle(
-                                              color: redAccent))));
+                                              color: blue))));
                                   appProvider.changeIsLoading();
 
                                 }

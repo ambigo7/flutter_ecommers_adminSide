@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -10,7 +10,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 //PACKAGE IMAGE PICKER
 import 'package:image_picker/image_picker.dart';
+import 'package:lets_shop_admin/commons/color.dart';
 import 'package:lets_shop_admin/commons/common.dart';
+import 'package:lets_shop_admin/commons/loading.dart';
 import 'package:lets_shop_admin/component/custom_text.dart';
 import 'package:lets_shop_admin/provider/app_provider.dart';
 import 'package:lets_shop_admin/provider/products_provider.dart';
@@ -35,15 +37,15 @@ class _AddProductState extends State<AddProduct> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _key = GlobalKey<ScaffoldState>();
   TextEditingController productNameController = TextEditingController();
-  TextEditingController productQtyController = TextEditingController();
+  TextEditingController productBrandController = TextEditingController();
   final priceController = TextEditingController();
+  final oldPriceController = TextEditingController();
   TextEditingController productDescController = TextEditingController();
 
   List<DocumentSnapshot> categories = <DocumentSnapshot>[];
   List<DocumentSnapshot> brands = <DocumentSnapshot>[];
-  List<DropdownMenuItem<String>> categoriesDropDown =
-  <DropdownMenuItem<String>>[];
-  List<DropdownMenuItem<String>> brandsDropDown = <DropdownMenuItem<String>>[];
+/*  List<DropdownMenuItem<String>> categoriesDropDown = <DropdownMenuItem<String>>[];
+  List<DropdownMenuItem<String>> brandsDropDown = <DropdownMenuItem<String>>[];*/
   List<String> selectedSizes = <String>[];
   List<String> colors = <String>[];
   bool onSale = false;
@@ -54,19 +56,12 @@ class _AddProductState extends State<AddProduct> {
 
   bool isLoading = false;
 
-  String _currentCategory = "";
-  String _currentBrand = "";
 
-  Color white = Colors.white;
-  Color black = Colors.black;
-  Color grey = Colors.grey;
-  Color redAccent = Colors.deepOrangeAccent[700];
-
-  @override
+/*  @override
   void initState() {
     _getCategories();
     _getBrands();
-  }
+  }*/
 
   //GET IMAGE
   Future getImage() async {
@@ -121,12 +116,12 @@ class _AddProductState extends State<AddProduct> {
           padding: const EdgeInsets.only(left:80),
           child: Text(
             'Add product',
-            style: TextStyle(color: redAccent),
+            style: TextStyle(color: blue),
           ),
         ),
         //background nya masih white
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_outlined, color: redAccent,),
+          icon: Icon(Icons.arrow_back_ios_outlined, color: blue,),
           onPressed: (){
             Navigator.pop(context);
           },
@@ -134,7 +129,7 @@ class _AddProductState extends State<AddProduct> {
       ),
       body: Form(
         key: _formKey,
-        child: isLoading ? Center(child: CircularProgressIndicator())
+        child: isLoading ? Loading()
             : ListView(
           children: <Widget>[
             Row(
@@ -160,7 +155,7 @@ class _AddProductState extends State<AddProduct> {
             ),
             SizedBox(height: 8.0),
 
-            Center(child: Text('Available Colors')),
+            Center(child: Text('You can only choose one color')),
 
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -324,7 +319,7 @@ class _AddProductState extends State<AddProduct> {
               ],
             ),
 
-            Center(child: Text('Available Sizes')),
+/*            Center(child: Text('Available Sizes')),
 
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -350,7 +345,7 @@ class _AddProductState extends State<AddProduct> {
                     onChanged: (value) => changeSelectedSizes('XXL')),
                 Text('XXL'),
               ],
-            ),
+            ),*/
 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -362,6 +357,7 @@ class _AddProductState extends State<AddProduct> {
                     Switch(value: onSale, onChanged: (value){
                       setState(() {
                         onSale = value;
+                        print('onSale value : $onSale');
                       });
                     })
                   ],
@@ -374,10 +370,11 @@ class _AddProductState extends State<AddProduct> {
                     Switch(value: featured, onChanged: (value){
                       setState(() {
                         featured = value;
+                        print('featured value : $featured');
                       });
                     })
                   ],
-                )
+                ),
               ],
             ),
             SizedBox(height: 8.0),
@@ -403,8 +400,22 @@ class _AddProductState extends State<AddProduct> {
               ),
             ),
 
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                controller: productBrandController,
+                decoration: InputDecoration(hintText: 'Brand name'),
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'You must enter the Brand name';
+                  }
+                  return null;
+                },
+              ),
+            ),
+
 //          For SELECT CATEGORY & BRAND
-            Row(
+/*            Row(
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -431,9 +442,9 @@ class _AddProductState extends State<AddProduct> {
                   value: _currentBrand,
                 ),
               ],
-            ),
+            ),*/
 
-            Padding(
+/*            Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
                 controller: productQtyController,
@@ -446,6 +457,23 @@ class _AddProductState extends State<AddProduct> {
                   return null;
                 },
               ),
+            ),*/
+            Visibility(
+              visible: onSale ? true : false,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  controller: oldPriceController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(hintText: 'Old Price'),
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'You must enter the old price';
+                    }
+                    return null;
+                  },
+                ),
+              ),
             ),
 
             Padding(
@@ -456,7 +484,7 @@ class _AddProductState extends State<AddProduct> {
                 decoration: InputDecoration(hintText: 'Price'),
                 validator: (value) {
                   if (value.isEmpty) {
-                    return 'You must enter the quantity';
+                    return 'You must enter the price';
                   }
                   return null;
                 },
@@ -542,7 +570,7 @@ class _AddProductState extends State<AddProduct> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: FlatButton(
-                  color: redAccent,
+                  color: blue,
                   textColor: white,
                   onPressed: () {
                     validateAndUpload();
@@ -556,7 +584,7 @@ class _AddProductState extends State<AddProduct> {
     );
   }
 
-  _getCategories() async {
+/*  _getCategories() async {
     List<DocumentSnapshot> data = await _categoryService.getCategories();
     print('_getCategories: ${data.length}');
     setState(() {
@@ -598,7 +626,7 @@ class _AddProductState extends State<AddProduct> {
         selectedSizes.insert(0, size);
       });
     }
-  }
+  }*/
 
   Widget _displayImage1() {
     if (_image1 == null) {
@@ -612,77 +640,65 @@ class _AddProductState extends State<AddProduct> {
   }
 
   void validateAndUpload() async {
+    final productProvider = Provider.of<ProductProvider>(context, listen: false);
+    String _colors = colors.toString();
+    String _colorsRemove = _colors.replaceAll('[', '');
+    String _selectedColors= _colorsRemove.replaceAll(']', '');
     if (_formKey.currentState.validate()) {
       setState(() {
         isLoading = true;
       });
-      if (_image1 != null) {
-        if (selectedSizes.isNotEmpty && colors.isNotEmpty) {
-          String imageUrl1;
-
-          final firebase_storage.FirebaseStorage storage =
-              firebase_storage.FirebaseStorage.instance;
-
-          final String picture1 =
-              '${DateTime
-              .now()
-              .millisecondsSinceEpoch
-              .toString()}.jpg';
-          firebase_storage.UploadTask uploadTask1 =
-          storage.ref().child(picture1).putFile(_image1);
-
-          firebase_storage.TaskSnapshot snapshot1 =
-          await uploadTask1.then((snapshot) => snapshot);
-
-          uploadTask1.then((snapshot) async {
-            imageUrl1 = await snapshot1.ref.getDownloadURL();
-
-            _productService.uploadProduct(
-                productNameController.text,
-                priceController.text,
-                productDescController.text,
-                selectedSizes,
-                colors,
-                imageUrl1,
-                picture1,
-                productQtyController.text,
-                _currentCategory,
-                _currentBrand,
-                onSale,
-                featured
-            );
+      if (_image1 != null && colors.length == 1) {
+          print('SelectedColors : $_colors');
+              bool uploadProduct = await productProvider.addProduct(
+                  productNameController.text, priceController.text, oldPriceController.text, productDescController.text,
+                  _selectedColors, _image1, productBrandController.text, onSale, featured);
+              print('upload status : $uploadProduct');
+              if(uploadProduct != false){
+                productProvider.getProducts();
+                productProvider.removeColor(_selectedColors);
             _formKey.currentState.reset();
-            setState(() {
-              isLoading = false;
-            });
             /*Navigator.pop(context);*/
-            changeScreen(context, Admin());
             _key.currentState.showSnackBar(SnackBar(
               backgroundColor: white,
-              content: CustomText(text: "Product added successfully", color: redAccent),
+              content: CustomText(text: "Product added successfully", color: blue),
             ));
+                changeScreen(context, Admin());
+                setState(() {
+                  isLoading = false;
+                });
+            }else{
+                productProvider.removeColor(_selectedColors);
+                setState(() {
+                  isLoading = false;
+                });
+                _key.currentState.showSnackBar(SnackBar(
+                  backgroundColor: white,
+                  content: CustomText(text: "Product added failed", color: blue),
+                ));
+              }
             /*Fluttertoast.showToast(msg: 'Product added successfully');*/
-          });
         } else {
+          productProvider.removeColor(_selectedColors);
           setState(() {
             isLoading = false;
           });
           /*Fluttertoast.showToast(msg: 'Colors and Size cannot be empty');*/
           _key.currentState.showSnackBar(SnackBar(
             backgroundColor: white,
-            content: CustomText(text: "Colors and Size cannot be empty", color: redAccent),
+            content: CustomText(text: "Sorry, all the images must be provided and color cannot empty", color: blue),
           ));
         }
       } else {
+        productProvider.removeColor(_selectedColors);
         setState(() {
           isLoading = false;
         });
         /*Fluttertoast.showToast(msg: 'Sorry, all the images must be provided');*/
         _key.currentState.showSnackBar(SnackBar(
             backgroundColor: white,
-            content: CustomText(text: "Sorry, all the images must be provided", color: redAccent),
+            content: CustomText(text: "Update Failed", color: blue),
         ));
       }
     }
   }
-}

@@ -11,7 +11,7 @@ class ProductService{
       'products');
 
   //create product data to cloud firestore
-  void uploadProduct(name, price, desc, sizes, color, images, imgRef, qty, category, brand, sale, featured){
+  void uploadProduct(name, price, oldPrice, desc, color, images, imgRef, brand, sale, featured){
     //Generate Key for brandID
     var id = Uuid();
     String productId = id.v1();
@@ -20,13 +20,11 @@ class ProductService{
           "id": productId,
           "name": name,
           "price": double.parse(price),
+          "oldPrice": double.tryParse(oldPrice) ?? 0,
           "description": desc,
-          "sizes": sizes,
           "color": color,
           "images": images,
           "imagesref": imgRef,
-          "quantity": int.parse(qty),
-          "category": category,
           "brand": brand,
           "sale": sale,
           "featured": featured
@@ -34,21 +32,19 @@ class ProductService{
     );
   }
 
-  //create product data to cloud firestore
-  void updateProduct(productId, name, price, desc, sizes, color, images, imgRef, qty, category, brand, sale, featured){
+  //create productv data to cloud firestore
+  void updateProduct(productId, name, price, oldPrice, desc, color, images, imgRef, brand, sale, featured){
 
     _firestore.collection(collection).doc(productId).update(
       {
         "id": productId,
         "name": name,
         "price": double.parse(price),
+        "oldPrice": double.tryParse(oldPrice) ?? 0,
         "description": desc,
-        "sizes": sizes,
         "color": color,
         "images": images,
         "imagesref": imgRef,
-        "quantity": int.parse(qty),
-        "category": category,
         "brand": brand,
         "sale": sale,
         "featured": featured
@@ -75,6 +71,8 @@ class ProductService{
       });
 
   void deleteProduct({String productId}) async {
+
+
     _products
         .doc(productId)
         .delete()

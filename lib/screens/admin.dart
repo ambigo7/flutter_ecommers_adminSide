@@ -6,6 +6,7 @@ import 'package:badges/badges.dart';
 
 //PACKAGE MONEY FORMATTER
 import 'package:intl/intl.dart';
+import 'package:lets_shop_admin/commons/color.dart';
 import 'package:lets_shop_admin/commons/common.dart';
 import 'package:lets_shop_admin/provider/products_provider.dart';
 import 'file:///D:/App%20Flutter%20build/lets_shop_admin/lib/component/product_list.dart';
@@ -28,13 +29,10 @@ class Admin extends StatefulWidget {
 
 class _AdminState extends State<Admin> {
   CategoryService _categoryService = CategoryService();
-  BrandService _brandService = BrandService();
-  ProductService _productService = ProductService();
-  UserService _userService = UserService();
-  OrderService _orderService = OrderService();
+  BrandService _brandService = BrandService(); //TODO: buat database brand lensa!!!
 
   Page _selectedPage = Page.dashboard;
-  Color active = Colors.deepOrangeAccent[700];
+  Color active = blue;
   Color noActive = Colors.grey;
   TextEditingController categoryController = TextEditingController();
   TextEditingController brandController = TextEditingController();
@@ -44,71 +42,6 @@ class _AdminState extends State<Admin> {
   //  ====CREATE MONEY CURRENCY FORMATTER====
   final formatCurrency = new NumberFormat.simpleCurrency(locale: 'id_ID');
 
-  int countCategory;
-  int countBrand;
-  int countProduct;
-  int countUser;
-  int countOrder;
-  int countSold;
-
-
-  _getCategories() async {
-    List<DocumentSnapshot> data = await _categoryService.getCategories();
-    print('${data.length}');
-    setState(() {
-      countCategory = data.length;
-    });
-  }
-
-  _getBrands() async {
-    List<DocumentSnapshot> data = await _brandService.getBrand();
-    print('data ${data.length}');
-    setState(() {
-      countBrand = data.length;
-    });
-  }
-
-  _getProducts() async {
-    List<DocumentSnapshot> data = await _productService.getDashboard_products();
-    print('Product ${data.length}');
-    setState(() {
-      countProduct = data.length;
-    });
-  }
-
-  _getUsers() async {
-    List<DocumentSnapshot> data = await _userService.getUsers();
-    print('Users ${data.length}');
-    setState(() {
-      countUser = data.length;
-    });
-  }
-
-  _getOrders() async {
-    List<DocumentSnapshot> data = await _orderService.getOrders();
-    print('Order ${data.length}');
-    setState(() {
-      countOrder = data.length;
-    });
-  }
-
-  _getSold() async {
-    List<DocumentSnapshot> data = await _orderService.getSold();
-    print('Sold ${data.length}');
-    setState(() {
-      countSold = data.length;
-    });
-  }
-
-  @override
-  void initState() {
-    _getCategories();
-    _getBrands();
-    _getProducts();
-    _getUsers();
-    _getOrders();
-    _getSold();
-  }
 
 
   @override
@@ -125,11 +58,11 @@ class _AdminState extends State<Admin> {
                       onPressed: () {
                         setState(() {
                           _selectedPage = Page.dashboard;
-                          _getBrands();
-                          _getProducts();
-                          _getUsers();
-                          _getOrders();
-                          _getSold();
+                          productProvider.getBrands();
+                          productProvider.getProducts();
+                          productProvider.getUsers();
+                          productProvider.getOrders();
+                          productProvider.getSold();
                         });
                       },
                       icon: Icon(
@@ -143,7 +76,7 @@ class _AdminState extends State<Admin> {
                       onPressed: () {
                         setState(() {
                           _selectedPage = Page.manage;
-                          _getOrders();
+                          productProvider.getOrders();
                         });
                       },
                       icon: Icon(
@@ -160,6 +93,7 @@ class _AdminState extends State<Admin> {
   }
 
   Widget _loadScreen() {
+    final productProvider = Provider.of<ProductProvider>(context);
     switch (_selectedPage) {
       case Page.dashboard:
         return Column(
@@ -196,7 +130,7 @@ class _AdminState extends State<Admin> {
                           icon: Icon(Icons.person_outline),
                           label: Text('Users')),
                       subtitle: Text(
-                        '$countUser',
+                        '${productProvider.countUser}',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: active, fontSize: 60.0),
                       ),
@@ -213,7 +147,7 @@ class _AdminState extends State<Admin> {
                           icon: Icon(Icons.track_changes),
                           label: Text("Producs")),
                       subtitle: Text(
-                        '$countProduct',
+                        '${productProvider.countProduct}',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: active, fontSize: 60.0),
                       ),
@@ -230,7 +164,7 @@ class _AdminState extends State<Admin> {
                           icon: Icon(Icons.assignment_turned_in_outlined),
                           label: Text("Brand")),
                       subtitle: Text(
-                        '$countBrand',
+                        '${productProvider.countBrand}',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: active, fontSize: 60.0),
                       ),
@@ -264,7 +198,7 @@ class _AdminState extends State<Admin> {
                           icon: Icon(Icons.tag_faces_outlined),
                           label: Text('Sold')),
                       subtitle: Text(
-                        '$countSold',
+                        '${productProvider.countSold}',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: active, fontSize: 60.0),
                       ),
@@ -280,7 +214,7 @@ class _AdminState extends State<Admin> {
                           icon: Icon(Icons.shopping_cart_outlined),
                           label: Text('Orders')),
                       subtitle: Text(
-                        '$countOrder',
+                        '${productProvider.countOrder}',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: active, fontSize: 60.0),
                       ),
@@ -314,16 +248,15 @@ class _AdminState extends State<Admin> {
           child: ListView(
             children: <Widget>[
               ListTile(
-                leading: countOrder > 0
+                leading: productProvider.countOrder > 0
                         ? Badge(
-                          position: BadgePosition.topEnd(top: -13, end: -8),
-/*                        animationDuration: Duration(milliseconds: 300),
-                          animationType: BadgeAnimationType.slide,*/
-                          badgeContent: Text(
-                          countOrder.toString(),
-                          style: TextStyle(color: Colors.white),
-                          ),
-                          child: Icon(Icons.shopping_cart_outlined))
+                            position: BadgePosition.topEnd(top: -13, end: -8),
+/*                          animationDuration: Duration(milliseconds: 300),
+                            animationType: BadgeAnimationType.slide,*/
+                            badgeContent: Text(
+                                productProvider.countOrder.toString(),
+                                style: TextStyle(color: Colors.white)),
+                            child: Icon(Icons.shopping_cart_outlined))
                         : Icon(Icons.shopping_cart_outlined),
                 title: Text('Orders'),
                 onTap: (){

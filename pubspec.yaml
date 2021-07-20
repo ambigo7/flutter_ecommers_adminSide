@@ -33,28 +33,27 @@ dependencies:
   firebase_auth: ^1.0.2
   firebase_storage: ^8.0.3
   cloud_firestore: ^1.0.4
-  google_sign_in: ^5.0.1
-  shared_preferences: ^2.0.5
   fluttertoast: ^8.0.3
   image_picker: ^0.7.4
   provider: ^5.0.0
   intl: ^0.17.0
   uuid: any
   flutter_typeahead: ^3.1.1
-  firebase_database: ^6.1.2
   flutter_spinkit: "^4.1.2"
   transparent_image: ^2.0.0
   badges: ^2.0.1
+  connectivity: ^3.0.6
+  extended_image: ^3.0.0-non-null-safety
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_launcher_icons: "^0.8.0"
+  flutter_launcher_icons: any
 
 flutter_icons:
-  image_path: "images/adminLogo.png"
+  image_path: "images/logo.png"
   android: true
   ios: true
 
@@ -70,8 +69,9 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+    # input semua asset yang ada di direktori
+    - images/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

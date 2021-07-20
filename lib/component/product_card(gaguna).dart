@@ -7,7 +7,7 @@ import 'package:lets_shop_admin/commons/common.dart';
 import 'package:lets_shop_admin/commons/loading.dart';
 import 'package:lets_shop_admin/models/product.dart';
 import 'package:lets_shop_admin/models/product.dart';
-import 'package:lets_shop_admin/screens/product_detail.dart';
+import 'package:lets_shop_admin/screens/edit_product.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class ProductCard extends StatefulWidget {
@@ -26,7 +26,7 @@ class _ProductCardState extends State<ProductCard> {
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () {
-          changeScreen(context, ProductDetail(product: widget.product));
+          changeScreen(context, EditProduct(product: widget.product));
         },
         child: Container(
           decoration: BoxDecoration(
@@ -99,7 +99,7 @@ class _ProductCardState extends State<ProductCard> {
                   child: IconButton(
                       icon: Icon(
                         Icons.delete_outline_rounded,
-                        color: redAccent,
+                        color: blue,
                       ),
                       onPressed: (){
 
