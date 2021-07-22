@@ -4,12 +4,12 @@ import 'package:lets_shop_admin/commons/color.dart';
 import 'package:lets_shop_admin/commons/common.dart';
 import 'package:lets_shop_admin/commons/loading.dart';
 import 'package:lets_shop_admin/component/custom_text.dart';
-import 'package:lets_shop_admin/component/product_card(gaguna).dart';
 import 'package:lets_shop_admin/provider/app_provider.dart';
 import 'package:lets_shop_admin/provider/products_provider.dart';
+import 'package:lets_shop_admin/screens/admin.dart';
 import 'package:provider/provider.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:transparent_image/transparent_image.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 import '../screens/edit_product.dart';
 
@@ -22,8 +22,8 @@ class ProductList extends StatefulWidget {
 class _ProductListState extends State<ProductList> {
   final _key = GlobalKey<ScaffoldState>();
   final formatCurrency = new NumberFormat.simpleCurrency(locale: 'id_ID');
-  final firebase_storage.FirebaseStorage storage =
-      firebase_storage.FirebaseStorage.instance;
+
+  RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +36,7 @@ class _ProductListState extends State<ProductList> {
         iconTheme: IconThemeData(color: blue),
         backgroundColor: white,
         leading: IconButton(icon: Icon(Icons.arrow_back_ios), onPressed: (){
+          // changeScreen(context, Admin(page: 'manage',));
           Navigator.pop(context);
         }),
         title: CustomText(text: "List of Products", size: 20, color: blue, weight: FontWeight.bold,),
@@ -43,7 +44,7 @@ class _ProductListState extends State<ProductList> {
         centerTitle: true,
       ),
       // ? is a null awareness(boleh kalo ga punya nilai)
-      body: productProvider.products.length < 1? Column(
+      body: productProvider.products.length < 1 ? Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Row(
@@ -62,7 +63,8 @@ class _ProductListState extends State<ProductList> {
             ],
           )
         ],
-      ) : ListView.builder(
+      ) : appProvider.isLoading ? Loading()
+          : ListView.builder(
           itemCount: productProvider.products.length,
           itemBuilder: (context, index){
             return GestureDetector(
@@ -154,11 +156,11 @@ class _ProductListState extends State<ProductList> {
                               onPressed: () async{
                                 appProvider.changeIsLoading();
                                 bool success =
-                                    await productProvider.deleteProduct(
-                                        productID: productProvider.products[index].id,
-                                        imageRef:productProvider.products[index].imageRef );
+                                await productProvider.deleteProduct(
+                                    productID: productProvider.products[index].id,
+                                    imageRef:productProvider.products[index].imageRef );
                                 if(success){
-                                  productProvider.loadProducts();
+                                  productProvider.reloadProducts();
                                   print("Product deleted");
                                   _key.currentState.showSnackBar(SnackBar(
                                       backgroundColor: white,
@@ -167,6 +169,14 @@ class _ProductListState extends State<ProductList> {
                                               color: blue))));
                                   appProvider.changeIsLoading();
 
+                                }else{
+                                  print("Product deleted");
+                                  _key.currentState.showSnackBar(SnackBar(
+                                      backgroundColor: white,
+                                      content: Text("Product failed to delete",
+                                          style: TextStyle(
+                                              color: blue))));
+                                  appProvider.changeIsLoading();
                                 }
                               }),
                         ),
@@ -177,5 +187,29 @@ class _ProductListState extends State<ProductList> {
             );
           }),
     );
+  }
+
+  void _onRefresh() async{
+    // monitor network fetch
+    await Future.delayed(Duration(milliseconds: 1000));
+    // if failed,use refreshFailed()
+    _refreshController.refreshCompleted();
+  }
+
+  void _onLoading() async{
+    final productProvider = Provider.of<ProductProvider>(context, listen: false);
+    // monitor network fetch
+    await Future.delayed(Duration(milliseconds: 1000));
+    // if failed,use loadFailed(),if no data return,use LoadNodata()
+    // await productProvider.reloadProducts();
+    _refreshController.loadComplete();
+    if(mounted) {
+      setState(() {
+
+      });
+
+    }/*else{
+        _refreshController.loadFailed();
+      }*/
   }
 }

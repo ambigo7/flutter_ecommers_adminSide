@@ -1,5 +1,4 @@
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:badges/badges.dart';
@@ -8,14 +7,16 @@ import 'package:badges/badges.dart';
 import 'package:intl/intl.dart';
 import 'package:lets_shop_admin/commons/color.dart';
 import 'package:lets_shop_admin/commons/common.dart';
+import 'package:lets_shop_admin/commons/loading.dart';
+import 'package:lets_shop_admin/component/custom_text.dart';
+import 'package:lets_shop_admin/component/lens_list.dart';
+import 'package:lets_shop_admin/provider/lens_provider.dart';
 import 'package:lets_shop_admin/provider/products_provider.dart';
+import 'package:lets_shop_admin/screens/add_lens.dart';
 import 'file:///D:/App%20Flutter%20build/lets_shop_admin/lib/component/product_list.dart';
 
 import 'package:lets_shop_admin/service/brand.dart';
 import 'package:lets_shop_admin/service/category.dart';
-import 'package:lets_shop_admin/service/order.dart';
-import 'package:lets_shop_admin/service/product.dart';
-import 'package:lets_shop_admin/service/user.dart';
 import 'package:provider/provider.dart';
 
 import 'add_product.dart';
@@ -23,15 +24,39 @@ import 'add_product.dart';
 enum Page { dashboard, manage }
 
 class Admin extends StatefulWidget {
+  final String page;
+
+  const Admin({Key key, this.page}) : super(key: key);
   @override
   _AdminState createState() => _AdminState();
 }
 
 class _AdminState extends State<Admin> {
   CategoryService _categoryService = CategoryService();
-  BrandService _brandService = BrandService(); //TODO: buat database brand lensa!!!
+  BrandService _brandService = BrandService();
 
   Page _selectedPage = Page.dashboard;
+
+  selectedPageFromAnotherClass(String _select){
+    if(_select == "dashboard"){
+      setState(() {
+        _selectedPage = Page.dashboard;
+      });
+    }else if(_select == "manage"){
+      setState(() {
+        _selectedPage = Page.manage;
+      });
+    }else{
+      setState(() {
+        _selectedPage = Page.dashboard;
+      });
+    }
+  }
+
+
+  bool _expansionProductClicked = false;
+  bool _expansionEyeClicked = false;
+
   Color active = blue;
   Color noActive = Colors.grey;
   TextEditingController categoryController = TextEditingController();
@@ -39,10 +64,16 @@ class _AdminState extends State<Admin> {
   GlobalKey<FormState> _categoryFormKey = GlobalKey();
   GlobalKey<FormState> _brandFormKey = GlobalKey();
 
+  bool isLoading = false;
+
   //  ====CREATE MONEY CURRENCY FORMATTER====
   final formatCurrency = new NumberFormat.simpleCurrency(locale: 'id_ID');
 
-
+  @override
+  void initState() {
+    selectedPageFromAnotherClass(widget.page);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +111,7 @@ class _AdminState extends State<Admin> {
                         });
                       },
                       icon: Icon(
-                        Icons.perm_data_setting_outlined,
+                        Icons.settings,
                         color: _selectedPage == Page.manage ? active : noActive,
                       ),
                       label: Text('Manage')))
@@ -89,11 +120,12 @@ class _AdminState extends State<Admin> {
           elevation: 0.0,
           backgroundColor: Colors.white,
         ),
-        body: _loadScreen());
+        body: isLoading ? Loading() :  _loadScreen());
   }
 
   Widget _loadScreen() {
     final productProvider = Provider.of<ProductProvider>(context);
+    final lensProvider = Provider.of<LensProvider>(context);
     switch (_selectedPage) {
       case Page.dashboard:
         return Column(
@@ -123,7 +155,15 @@ class _AdminState extends State<Admin> {
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.all(18.0),
-                  child: Card(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: grey,),
+                      boxShadow: [BoxShadow(
+                          blurRadius: 20,
+                          color: Colors.black.withOpacity(0.3))],
+                      borderRadius: BorderRadius.circular(20),
+                      color: white,
+                    ),
                     child: ListTile(
                       title: FlatButton.icon(
                           onPressed: null,
@@ -140,12 +180,20 @@ class _AdminState extends State<Admin> {
 
                 Padding(
                   padding: const EdgeInsets.all(22.0),
-                  child: Card(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: grey,),
+                      boxShadow: [BoxShadow(
+                          blurRadius: 20,
+                          color: Colors.black.withOpacity(0.3))],
+                      borderRadius: BorderRadius.circular(20),
+                      color: white,
+                    ),
                     child: ListTile(
                       title: FlatButton.icon(
                           onPressed: null,
                           icon: Icon(Icons.track_changes),
-                          label: Text("Producs")),
+                          label: Text("Products")),
                       subtitle: Text(
                         '${productProvider.countProduct}',
                         textAlign: TextAlign.center,
@@ -157,7 +205,15 @@ class _AdminState extends State<Admin> {
 
                 Padding(
                   padding: const EdgeInsets.all(22.0),
-                  child: Card(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: grey,),
+                      boxShadow: [BoxShadow(
+                          blurRadius: 20,
+                          color: Colors.black.withOpacity(0.3))],
+                      borderRadius: BorderRadius.circular(20),
+                      color: white,
+                    ),
                     child: ListTile(
                       title: FlatButton.icon(
                           onPressed: null,
@@ -191,7 +247,15 @@ class _AdminState extends State<Admin> {
 
                 Padding(
                   padding: const EdgeInsets.all(18.0),
-                  child: Card(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: grey,),
+                      boxShadow: [BoxShadow(
+                          blurRadius: 20,
+                          color: Colors.black.withOpacity(0.3))],
+                      borderRadius: BorderRadius.circular(20),
+                      color: white,
+                    ),
                     child: ListTile(
                       title: FlatButton.icon(
                           onPressed: null,
@@ -205,9 +269,18 @@ class _AdminState extends State<Admin> {
                     ),
                   ),
                 ),
+
                 Padding(
                   padding: const EdgeInsets.all(18.0),
-                  child: Card(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: grey,),
+                      boxShadow: [BoxShadow(
+                          blurRadius: 20,
+                          color: Colors.black.withOpacity(0.3))],
+                      borderRadius: BorderRadius.circular(20),
+                      color: white,
+                    ),
                     child: ListTile(
                       title: FlatButton.icon(
                           onPressed: null,
@@ -223,7 +296,15 @@ class _AdminState extends State<Admin> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(18.0),
-                  child: Card(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: grey,),
+                      boxShadow: [BoxShadow(
+                          blurRadius: 20,
+                          color: Colors.black.withOpacity(0.3))],
+                      borderRadius: BorderRadius.circular(20),
+                      color: white,
+                    ),
                     child: ListTile(
                       title: FlatButton.icon(
                           onPressed: null,
@@ -264,45 +345,41 @@ class _AdminState extends State<Admin> {
                 },
               ),
               Divider(),
-              ListTile(
-                leading: Icon(Icons.track_changes),
-                title: Text('Product'),
-                onTap: () {
-                  productModalButtom(context);
-/*                  showModalBottomSheet(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(20),
-                        ),
-                      ),
-                      context: context,
-                      builder: (BuildContext context){
-                        return Container(
-                          height: 200,
-                          child: ListView(
-                            children: <Widget>[
-                              ListTile(
-                                leading: Icon(Icons.add_circle_outline),
-                                title: Text('Add product'),
-                                onTap: () {
-                                  changeScreen(context, AddProduct());
-                                },
-                              ),
-                              Divider(),
-                              ListTile(
-                                leading: Icon(Icons.edit_outlined),
-                                title: Text('Update & Delete Product'),
-                                onTap: () {
-                                  productProvider.loadProducts();
-                                  changeScreen(context, ProductList());
-                                },
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-                  );*/
-                },
+              Theme(
+                data: ThemeData(accentColor: _expansionProductClicked ? active : noActive,),
+                child: ExpansionTile(
+                  leading: Icon(Icons.track_changes, color: _expansionProductClicked ? active : noActive,),
+                  title: CustomText(text: 'Product', color: _expansionProductClicked ? active : black,),
+                  childrenPadding: EdgeInsets.only(left: 40),
+                  onExpansionChanged: (value){
+                    setState(() {
+                      _expansionProductClicked = value;
+                    });
+                  },
+                  children: <Widget>[
+                    ListTile(
+                      leading: Icon(Icons.add_circle_outline),
+                      title: Text('Add Product'),
+                      onTap: () {
+                        changeScreen(context, AddProduct());
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.view_list),
+                      title: Text('Update & Delete Product'),
+                      onTap: () {
+                        setState(() {
+                          isLoading = true;
+                        });
+                        productProvider.reloadProducts();
+                        changeScreen(context, ProductList());
+                        setState(() {
+                          isLoading = false;
+                        });
+                      },
+                    ),
+                  ],
+                ),
               ),
 /*            Divider(),
               ListTile(
@@ -313,12 +390,42 @@ class _AdminState extends State<Admin> {
                 },
               ),*/
               Divider(),
-              ListTile(
-                leading: Icon(Icons.assignment_turned_in_outlined),
-                title: Text('Brand'),
-                onTap: () {
-                  _brandAlert();
-                },
+              Theme(
+                data: ThemeData(accentColor: _expansionEyeClicked ? active : noActive,),
+                child: ExpansionTile(
+                  leading: Icon(Icons.assignment_turned_in_outlined, color: _expansionEyeClicked  ? active : noActive,),
+                  title: CustomText(text: 'Eyeglass', color: _expansionEyeClicked  ? active : black,),
+                  childrenPadding: EdgeInsets.only(left: 40),
+                  onExpansionChanged: (value){
+                    setState(() {
+                      _expansionEyeClicked  = value;
+                    });
+                  },
+                  children: <Widget>[
+                    ListTile(
+                      leading: Icon(Icons.add_circle_outline),
+                      title: Text('Add Eyeglass'),
+                      onTap: () {
+                        changeScreen(context, AddLens());
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.view_list),
+                      title: Text('Update & Delete Eyeglass'),
+                      onTap: () {
+                        setState(() {
+                          isLoading = true;
+                        });
+                        lensProvider.reloadLens();
+                        changeScreen(context, LensList());
+                        setState(() {
+                          isLoading = false;
+                        });
+
+                      },
+                    ),
+                  ],
+                ),
               ),
               Divider(),
             ],
@@ -403,42 +510,5 @@ class _AdminState extends State<Admin> {
     );
 
     showDialog(context: context, builder: (_) => alert);
-  }
-
-  void productModalButtom(BuildContext context){
-    final productProvider = Provider.of<ProductProvider>(context, listen: false);
-    showModalBottomSheet(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(20),
-          ),
-        ),
-        context: context,
-        builder: (_){
-          return Container(
-            height: 200,
-            child: ListView(
-              children: <Widget>[
-                ListTile(
-                  leading: Icon(Icons.add_circle_outline),
-                  title: Text('Add product'),
-                  onTap: () {
-                    changeScreen(context, AddProduct());
-                  },
-                ),
-                Divider(),
-                ListTile(
-                  leading: Icon(Icons.edit_outlined),
-                  title: Text('Update & Delete Product'),
-                  onTap: () {
-                    productProvider.loadProducts();
-                    changeScreen(context, ProductList());
-                  },
-                ),
-              ],
-            ),
-          );
-        }
-    );
   }
 }

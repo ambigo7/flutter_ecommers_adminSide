@@ -71,8 +71,6 @@ class ProductService{
       });
 
   void deleteProduct({String productId}) async {
-
-
     _products
         .doc(productId)
         .delete()

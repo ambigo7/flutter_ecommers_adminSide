@@ -1,7 +1,5 @@
-import 'dart:ffi';
 import 'dart:io';
 
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -12,10 +10,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 //PACKAGE IMAGE PICKER
 import 'package:image_picker/image_picker.dart';
 import 'package:lets_shop_admin/commons/color.dart';
-import 'package:lets_shop_admin/commons/common.dart';
 import 'package:lets_shop_admin/commons/loading.dart';
 import 'package:lets_shop_admin/component/custom_text.dart';
-import 'package:lets_shop_admin/component/product_list.dart';
 import 'package:lets_shop_admin/models/product.dart';
 import 'package:lets_shop_admin/provider/products_provider.dart';
 
@@ -37,9 +33,6 @@ class EditProduct extends StatefulWidget {
 }
 
 class _EditProductState extends State<EditProduct> {
-  CategoryService _categoryService = CategoryService();
-  BrandService _brandService = BrandService();
-  ProductService _productService = ProductService();
 
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _key = GlobalKey<ScaffoldState>();
@@ -74,6 +67,7 @@ class _EditProductState extends State<EditProduct> {
     _getBrands();*/
     onSale = widget.product.sale;
     featured = widget.product.featured;
+    super.initState();
   }
 
   //GET IMAGE
@@ -123,13 +117,8 @@ class _EditProductState extends State<EditProduct> {
     productNameController = TextEditingController(text: widget.product.name);
     productBrandController = TextEditingController(text: widget.product.brand);
     priceController = TextEditingController(text: widget.product.price.toString());
-    oldPriceController = TextEditingController(text: onSale ? widget.product.oldPrice.toString() : 0.toString());
+    oldPriceController = TextEditingController(text: onSale ? widget.product.oldPrice.toString() : null);
     productDescController = TextEditingController(text: widget.product.description);
-
-/*    onSale = widget.product.sale;
-    featured = widget.product.featured;*/
-    bool _switchSale = widget.product.sale;
-    bool _switchFeatured = widget.product.featured;
 
     return Scaffold(
       key: _key,
@@ -378,7 +367,10 @@ class _EditProductState extends State<EditProduct> {
                   children: <Widget>[
                     Text('Sale'),
                     SizedBox(width: 10,),
-                    Switch(value: onSale, onChanged: (value){
+                    Switch(
+                        value: onSale,
+                        activeColor: blue,
+                        onChanged: (value){
                       setState(() {
                         onSale = value;
                         print('onSale value global : $onSale');
@@ -391,7 +383,10 @@ class _EditProductState extends State<EditProduct> {
                   children: <Widget>[
                     Text('Featured'),
                     SizedBox(width: 10,),
-                    Switch(value: featured, onChanged: (value){
+                    Switch(
+                        value: featured,
+                        activeColor: blue,
+                        onChanged: (value){
                       setState(() {
                         featured = value;
                         print('featured value global : $featured');
@@ -420,6 +415,7 @@ class _EditProductState extends State<EditProduct> {
             Padding(
               padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
               child: TextFormField(
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 controller: productNameController,
                 decoration: InputDecoration(hintText: widget.product.name),
                 validator: (value) {
@@ -443,6 +439,7 @@ class _EditProductState extends State<EditProduct> {
             Padding(
               padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
               child: TextFormField(
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 controller: productBrandController,
                 decoration: InputDecoration(hintText: widget.product.brand),
                 validator: (value) {
@@ -510,6 +507,7 @@ class _EditProductState extends State<EditProduct> {
                       color: grey,
                     ),
                     TextFormField(
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       controller: oldPriceController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(hintText: widget.product.oldPrice.toString()),
@@ -535,6 +533,7 @@ class _EditProductState extends State<EditProduct> {
             Padding(
               padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
               child: TextFormField(
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 controller: priceController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(hintText: widget.product.price.toString()),
@@ -557,6 +556,7 @@ class _EditProductState extends State<EditProduct> {
             Padding(
               padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
               child: TextFormField(
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 keyboardType: TextInputType.multiline,
                 maxLines: 10,
                 controller: productDescController,
@@ -733,14 +733,16 @@ class _EditProductState extends State<EditProduct> {
           print('update image : $_image1');
           print('update status : $updateProduct1');
           if(updateProduct1) {
-            productProvider.removeColor(_selectedColors);
-            /*changeScreen(context, Admin());*/
-            changeScreen(context, ProductList());
             _key.currentState.showSnackBar(SnackBar(
               backgroundColor: white,
               content: CustomText(
                   text: "Product has been updated", color: blue),
             ));
+            productProvider.removeColor(_selectedColors);
+            // changeScreen(context, Admin(page: 'manage',));
+            //Dua kali balik ke page sebelumnya
+            Navigator.pop(context);
+            Navigator.pop(context);
             setState(() {
               isLoading = false;
             });
@@ -765,13 +767,16 @@ class _EditProductState extends State<EditProduct> {
           print('update image : $_image1');
           print('upload status : $updateProduct2');
           if(updateProduct2) {
-            productProvider.removeColor(_selectedColors);
-            changeScreen(context, Admin());
             _key.currentState.showSnackBar(SnackBar(
               backgroundColor: white,
               content: CustomText(
                   text: "Product has been updated", color: blue),
             ));
+            productProvider.removeColor(_selectedColors);
+            /*changeScreen(context, Admin(page: 'manage',));*/
+            //Dua kali balik ke page sebelumnya
+            Navigator.pop(context);
+            Navigator.pop(context);
             setState(() {
               isLoading = false;
             });
@@ -788,15 +793,25 @@ class _EditProductState extends State<EditProduct> {
           }
         }
       } else {
-        setState(() {
-          isLoading = false;
-        });
         /*Fluttertoast.showToast(msg: 'Sorry, all the images must be provided');*/
         _key.currentState.showSnackBar(SnackBar(
           backgroundColor: white,
           content: CustomText(text: "Sorry, all the images must be provided and color cannot empty", color: blue),
         ));
+        setState(() {
+          isLoading = false;
+        });
       }
+    } else {
+      productProvider.removeColor(_selectedColors);
+      /*Fluttertoast.showToast(msg: 'Sorry, all the images must be provided');*/
+      _key.currentState.showSnackBar(SnackBar(
+        backgroundColor: white,
+        content: CustomText(text: "Update Failed. Please, try again", color: blue),
+      ));
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 }

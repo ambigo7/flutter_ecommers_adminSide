@@ -30,17 +30,16 @@ class AddProduct extends StatefulWidget {
 }
 
 class _AddProductState extends State<AddProduct> {
-  CategoryService _categoryService = CategoryService();
-  BrandService _brandService = BrandService();
-  ProductService _productService = ProductService();
+
+  Admin _admin = Admin();
 
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _key = GlobalKey<ScaffoldState>();
-  TextEditingController productNameController = TextEditingController();
-  TextEditingController productBrandController = TextEditingController();
-  final priceController = TextEditingController();
-  final oldPriceController = TextEditingController();
-  TextEditingController productDescController = TextEditingController();
+  TextEditingController productNameController;
+  TextEditingController productBrandController;
+  TextEditingController priceController ;
+  TextEditingController oldPriceController;
+  TextEditingController productDescController;
 
   List<DocumentSnapshot> categories = <DocumentSnapshot>[];
   List<DocumentSnapshot> brands = <DocumentSnapshot>[];
@@ -48,20 +47,26 @@ class _AddProductState extends State<AddProduct> {
   List<DropdownMenuItem<String>> brandsDropDown = <DropdownMenuItem<String>>[];*/
   List<String> selectedSizes = <String>[];
   List<String> colors = <String>[];
-  bool onSale = false;
-  bool featured = false;
+  bool onSale;
+  bool featured;
 
   File _image1;
   final picker = ImagePicker();
 
   bool isLoading = false;
 
-
-/*  @override
+  @override
   void initState() {
-    _getCategories();
-    _getBrands();
-  }*/
+    _image1 = null;
+    productNameController  = TextEditingController();
+    productBrandController = TextEditingController();
+    productDescController = TextEditingController();
+    priceController = TextEditingController();
+    oldPriceController = TextEditingController();
+    onSale  = false;
+    featured = false;
+    super.initState();
+  }
 
   //GET IMAGE
   Future getImage() async {
@@ -354,7 +359,10 @@ class _AddProductState extends State<AddProduct> {
                   children: <Widget>[
                     Text('Sale'),
                     SizedBox(width: 10,),
-                    Switch(value: onSale, onChanged: (value){
+                    Switch(
+                        value: onSale,
+                        activeColor: blue,
+                        onChanged: (value){
                       setState(() {
                         onSale = value;
                         print('onSale value : $onSale');
@@ -367,7 +375,10 @@ class _AddProductState extends State<AddProduct> {
                   children: <Widget>[
                     Text('Featured'),
                     SizedBox(width: 10,),
-                    Switch(value: featured, onChanged: (value){
+                    Switch(
+                        value: featured,
+                        activeColor: blue,
+                        onChanged: (value){
                       setState(() {
                         featured = value;
                         print('featured value : $featured');
@@ -387,6 +398,7 @@ class _AddProductState extends State<AddProduct> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 controller: productNameController,
                 decoration: InputDecoration(hintText: 'Product Name'),
                 validator: (value) {
@@ -403,6 +415,7 @@ class _AddProductState extends State<AddProduct> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 controller: productBrandController,
                 decoration: InputDecoration(hintText: 'Brand name'),
                 validator: (value) {
@@ -463,6 +476,7 @@ class _AddProductState extends State<AddProduct> {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   controller: oldPriceController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(hintText: 'Old Price'),
@@ -479,7 +493,8 @@ class _AddProductState extends State<AddProduct> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
-                controller: priceController,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                controller: priceController, //TODO: buat validator dibawah kalo price ga boleh dibawah old price
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(hintText: 'Price'),
                 validator: (value) {
@@ -494,6 +509,7 @@ class _AddProductState extends State<AddProduct> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 keyboardType: TextInputType.multiline,
                 maxLines: 10,
                 controller: productDescController,
@@ -663,8 +679,16 @@ class _AddProductState extends State<AddProduct> {
               backgroundColor: white,
               content: CustomText(text: "Product added successfully", color: blue),
             ));
-                changeScreen(context, Admin());
+                /*changeScreen(context, Admin(page: 'manage',));*/
                 setState(() {
+                  _image1 = null;
+                  productNameController  = TextEditingController();
+                  productBrandController = TextEditingController();
+                  productDescController = TextEditingController();
+                  priceController = TextEditingController();
+                  oldPriceController = TextEditingController();
+                  onSale  = false;
+                  featured = false;
                   isLoading = false;
                 });
             }else{
@@ -691,14 +715,14 @@ class _AddProductState extends State<AddProduct> {
         }
       } else {
         productProvider.removeColor(_selectedColors);
-        setState(() {
-          isLoading = false;
-        });
         /*Fluttertoast.showToast(msg: 'Sorry, all the images must be provided');*/
         _key.currentState.showSnackBar(SnackBar(
             backgroundColor: white,
-            content: CustomText(text: "Update Failed", color: blue),
+            content: CustomText(text: "Upload Failed", color: blue),
         ));
+        setState(() {
+          isLoading = false;
+        });
       }
     }
   }

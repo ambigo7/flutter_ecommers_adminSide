@@ -15,7 +15,6 @@ class ProductProvider with ChangeNotifier{
   UserService _userService = UserService();
   OrderService _orderService = OrderService();
   List<ProductModel> products = [];
-  List<ProductModel> rldProducts = [];
   List<String> selectedColors = [];
 
   int countBrand;
@@ -26,7 +25,6 @@ class ProductProvider with ChangeNotifier{
 
   ProductProvider.initialize(){
     loadProducts();
-    reloadProducts();
     getBrands();
     getSold();
     getUsers();
@@ -51,8 +49,8 @@ class ProductProvider with ChangeNotifier{
     notifyListeners();
   }
 
-  reloadProducts() async{
-    rldProducts = await _productService.getProducts();
+  /*Future */reloadProducts() async{
+    products = await _productService.getProducts();
     notifyListeners();
   }
 
@@ -167,10 +165,10 @@ class ProductProvider with ChangeNotifier{
         firebase_storage.UploadTask uploadTask =
             storage.ref().child(picture).putFile(images) ?? "";
 
-        firebase_storage.TaskSnapshot snapshot =
+        firebase_storage.TaskSnapshot snapshot1 =
         await uploadTask.then((snapshot) => snapshot);
         uploadTask.then((snapshot) async {
-          _imageUrl = await snapshot.ref.getDownloadURL();
+          _imageUrl = await snapshot1.ref.getDownloadURL();
 
           _productService.updateProduct(
               productId,
@@ -200,7 +198,7 @@ class ProductProvider with ChangeNotifier{
       final firebase_storage.FirebaseStorage storage =
           firebase_storage.FirebaseStorage.instance;
       await storage.ref(imageRef).delete();
-      await _productService.deleteProduct(productId: productID);
+      _productService.deleteProduct(productId: productID);
       return true;
     }catch(e){
       print("THE ERROR ${e.toString()}");
