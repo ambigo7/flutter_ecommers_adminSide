@@ -4,7 +4,9 @@ import 'package:lets_shop_admin/commons/color.dart';
 import 'package:lets_shop_admin/provider/app_provider.dart';
 import 'package:lets_shop_admin/provider/connectivity_provider.dart';
 import 'package:lets_shop_admin/provider/lens_provider.dart';
+import 'package:lets_shop_admin/provider/order_provider.dart';
 import 'package:lets_shop_admin/provider/products_provider.dart';
+import 'package:lets_shop_admin/provider/user_provider.dart';
 import 'package:lets_shop_admin/screens/admin.dart';
 import 'package:lets_shop_admin/screens/nointernet.dart';
 import 'package:provider/provider.dart';
@@ -20,8 +22,10 @@ void main() async{
           create: (context) => ConnectivityProvider(),
           child: CheckConnection(),
         ),
+        ChangeNotifierProvider.value(value: UserProvider.initialize()),
         ChangeNotifierProvider.value(value: ProductProvider.initialize()),
         ChangeNotifierProvider.value(value: LensProvider.initialize()),
+        ChangeNotifierProvider.value(value: OrderProvider.initialize()),
         ChangeNotifierProvider.value(value: AppProvider())
       ],
       child: MaterialApp(

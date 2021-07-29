@@ -10,8 +10,11 @@ import 'package:lets_shop_admin/commons/common.dart';
 import 'package:lets_shop_admin/commons/loading.dart';
 import 'package:lets_shop_admin/component/custom_text.dart';
 import 'package:lets_shop_admin/component/lens_list.dart';
+import 'package:lets_shop_admin/component/order_list.dart';
 import 'package:lets_shop_admin/provider/lens_provider.dart';
+import 'package:lets_shop_admin/provider/order_provider.dart';
 import 'package:lets_shop_admin/provider/products_provider.dart';
+import 'package:lets_shop_admin/provider/user_provider.dart';
 import 'package:lets_shop_admin/screens/add_lens.dart';
 import 'file:///D:/App%20Flutter%20build/lets_shop_admin/lib/component/product_list.dart';
 
@@ -58,7 +61,7 @@ class _AdminState extends State<Admin> {
   bool _expansionEyeClicked = false;
 
   Color active = blue;
-  Color noActive = Colors.grey;
+  Color noActive = grey;
   TextEditingController categoryController = TextEditingController();
   TextEditingController brandController = TextEditingController();
   GlobalKey<FormState> _categoryFormKey = GlobalKey();
@@ -77,9 +80,9 @@ class _AdminState extends State<Admin> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
     final productProvider = Provider.of<ProductProvider>(context);
-
-    String _lenghtProduct = productProvider.products.length.toString();
+    final orderProvider = Provider.of<OrderProvider>(context);
     return Scaffold(
         appBar: AppBar(
           title: Row(
@@ -91,9 +94,10 @@ class _AdminState extends State<Admin> {
                           _selectedPage = Page.dashboard;
                           productProvider.getBrands();
                           productProvider.getProducts();
-                          productProvider.getUsers();
-                          productProvider.getOrders();
-                          productProvider.getSold();
+                          userProvider.getCountUsers();
+                          orderProvider.getPendingOrder();
+                          orderProvider.getOrdersIncomplete();
+                          orderProvider.getSold();
                         });
                       },
                       icon: Icon(
@@ -107,25 +111,53 @@ class _AdminState extends State<Admin> {
                       onPressed: () {
                         setState(() {
                           _selectedPage = Page.manage;
-                          productProvider.getOrders();
+                          orderProvider.getPendingOrder();
+                          orderProvider.getOrdersIncomplete();
                         });
                       },
-                      icon: Icon(
+                      icon: orderProvider.countOrderPending > 0
+                          ? Badge(
+                          position: BadgePosition.topEnd(top: -13, end: -8),
+                          animationDuration: Duration(milliseconds: 500),
+                            animationType: BadgeAnimationType.slide,
+                          badgeContent: Text(
+                              orderProvider.countOrderPending.toString(),
+                              style: TextStyle(color: Colors.white)),
+                          child: Icon(Icons.settings, color: _selectedPage == Page.manage ? active : noActive,))
+                          : Icon(Icons.settings, color: _selectedPage == Page.manage ? active : noActive,),/*Icon(
                         Icons.settings,
                         color: _selectedPage == Page.manage ? active : noActive,
-                      ),
+                      )*/
                       label: Text('Manage')))
             ],
           ),
           elevation: 0.0,
           backgroundColor: Colors.white,
         ),
-        body: isLoading ? Loading() :  _loadScreen());
+        body: isLoading ? Loading()
+            :  GestureDetector(
+            onHorizontalDragEnd: (DragEndDetails details){
+              if (details.primaryVelocity > 0) {
+                // User swiped Left
+                setState(() {
+                  _selectedPage = Page.manage;
+                });
+              } else if (details.primaryVelocity < 0) {
+                // User swiped Right
+                setState(() {
+                  _selectedPage = Page.dashboard;
+                });
+              }
+            },
+            child: _loadScreen())
+    );
   }
 
   Widget _loadScreen() {
+    final userProvider = Provider.of<UserProvider>(context);
     final productProvider = Provider.of<ProductProvider>(context);
     final lensProvider = Provider.of<LensProvider>(context);
+    final orderProvider = Provider.of<OrderProvider>(context);
     switch (_selectedPage) {
       case Page.dashboard:
         return Column(
@@ -138,16 +170,15 @@ class _AdminState extends State<Admin> {
                   size: 30.0,
                   color: Colors.green,
                 ),
-                //TODO: liat alur cart di letshop admin buat itung seluruh Revenue
                 label: Text('${formatCurrency.format(150000)}',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 30.0, color: Colors.green)),
               ),
-              title: Text(
+/*              title: Text( //TODO: Masih belum ketemu caranya, nanti aja!!!!
                 'Revenue',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 24.0, color: Colors.grey),
-              ),
+              ),*/
             ),
             Expanded(
                 child: GridView(gridDelegate:
@@ -170,7 +201,7 @@ class _AdminState extends State<Admin> {
                           icon: Icon(Icons.person_outline),
                           label: Text('Users')),
                       subtitle: Text(
-                        '${productProvider.countUser}',
+                        '${userProvider.countUser}',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: active, fontSize: 60.0),
                       ),
@@ -262,7 +293,7 @@ class _AdminState extends State<Admin> {
                           icon: Icon(Icons.tag_faces_outlined),
                           label: Text('Sold')),
                       subtitle: Text(
-                        '${productProvider.countSold}',
+                        '${productProvider.countSold ?? 0}',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: active, fontSize: 60.0),
                       ),
@@ -285,9 +316,13 @@ class _AdminState extends State<Admin> {
                       title: FlatButton.icon(
                           onPressed: null,
                           icon: Icon(Icons.shopping_cart_outlined),
-                          label: Text('Orders')),
+                          label:  CustomText(
+                            text: 'Orders \nIncomplete',
+                            size: 14,
+                            color: grey,
+                            align: TextAlign.center,)),
                       subtitle: Text(
-                        '${productProvider.countOrder}',
+                        '${orderProvider.countOrderIncomplete  ?? 0}',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: active, fontSize: 60.0),
                       ),
@@ -308,10 +343,15 @@ class _AdminState extends State<Admin> {
                     child: ListTile(
                       title: FlatButton.icon(
                           onPressed: null,
-                          icon: Icon(Icons.close_outlined),
-                          label: Text('return')),
+                          icon: Icon(Icons.timer, color: redAccent, size: 20,),
+                          label: CustomText(
+                            text: 'Pending\nValidation',
+                            size: 14,
+                            color: redAccent,
+                            weight: FontWeight.bold,
+                            align: TextAlign.center,)),
                       subtitle: Text(
-                        '0',
+                        '${orderProvider.countOrderPending ?? 0}',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: active, fontSize: 60.0),
                       ),
@@ -329,19 +369,19 @@ class _AdminState extends State<Admin> {
           child: ListView(
             children: <Widget>[
               ListTile(
-                leading: productProvider.countOrder > 0
+                leading: orderProvider.countOrderPending > 0
                         ? Badge(
                             position: BadgePosition.topEnd(top: -13, end: -8),
-/*                          animationDuration: Duration(milliseconds: 300),
-                            animationType: BadgeAnimationType.slide,*/
+                          animationDuration: Duration(milliseconds: 500),
+                            animationType: BadgeAnimationType.slide,
                             badgeContent: Text(
-                                productProvider.countOrder.toString(),
+                                orderProvider.countOrderPending.toString(),
                                 style: TextStyle(color: Colors.white)),
                             child: Icon(Icons.shopping_cart_outlined))
                         : Icon(Icons.shopping_cart_outlined),
                 title: Text('Orders'),
                 onTap: (){
-
+                  changeScreen(context, OrderScreen());
                 },
               ),
               Divider(),
@@ -394,7 +434,7 @@ class _AdminState extends State<Admin> {
                 data: ThemeData(accentColor: _expansionEyeClicked ? active : noActive,),
                 child: ExpansionTile(
                   leading: Icon(Icons.assignment_turned_in_outlined, color: _expansionEyeClicked  ? active : noActive,),
-                  title: CustomText(text: 'Eyeglass', color: _expansionEyeClicked  ? active : black,),
+                  title: CustomText(text: 'Lens', color: _expansionEyeClicked  ? active : black,),
                   childrenPadding: EdgeInsets.only(left: 40),
                   onExpansionChanged: (value){
                     setState(() {
@@ -404,14 +444,14 @@ class _AdminState extends State<Admin> {
                   children: <Widget>[
                     ListTile(
                       leading: Icon(Icons.add_circle_outline),
-                      title: Text('Add Eyeglass'),
+                      title: Text('Add Lens'),
                       onTap: () {
                         changeScreen(context, AddLens());
                       },
                     ),
                     ListTile(
                       leading: Icon(Icons.view_list),
-                      title: Text('Update & Delete Eyeglass'),
+                      title: Text('Update & Delete Lens'),
                       onTap: () {
                         setState(() {
                           isLoading = true;

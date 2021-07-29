@@ -34,7 +34,7 @@ class _LensListState extends State<LensList> {
         leading: IconButton(icon: Icon(Icons.arrow_back_ios), onPressed: (){
           changeScreen(context, Admin(page: 'manage',));
         }),
-        title: CustomText(text: "List of Eyeglass", size: 20, color: blue, weight: FontWeight.bold,),
+        title: CustomText(text: "List of Lens", size: 20, color: blue, weight: FontWeight.bold,),
         elevation: 0.0,
         centerTitle: true,
       ),
@@ -53,7 +53,7 @@ class _LensListState extends State<LensList> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              CustomText(text: "No Eyeglass Found", color: grey, weight: FontWeight.w300, size: 22,),
+              CustomText(text: "No Lens Found", color: grey, weight: FontWeight.w300, size: 22,),
             ],
           )
         ],

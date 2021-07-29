@@ -70,7 +70,7 @@ class _AddLensState extends State<AddLens> {
         title: Padding(
           padding: const EdgeInsets.only(left:80),
           child: Text(
-            'Add Eyeglass',
+            'Add Lens',
             style: TextStyle(color: blue),
           ),
         ),

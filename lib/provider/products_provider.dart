@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:lets_shop_admin/models/product.dart';
 import 'package:lets_shop_admin/service/brand.dart';
-import 'package:lets_shop_admin/service/order.dart';
 import 'package:lets_shop_admin/service/product.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:lets_shop_admin/service/user.dart';
@@ -12,24 +11,17 @@ import 'package:lets_shop_admin/service/user.dart';
 class ProductProvider with ChangeNotifier{
   BrandService _brandService = BrandService();
   ProductService _productService = ProductService();
-  UserService _userService = UserService();
-  OrderService _orderService = OrderService();
   List<ProductModel> products = [];
   List<String> selectedColors = [];
 
   int countBrand;
   int countProduct;
-  int countUser;
-  int countOrder;
   int countSold;
 
   ProductProvider.initialize(){
     loadProducts();
     getBrands();
-    getSold();
-    getUsers();
     getProducts();
-    getOrders();
   }
 
   addColor(String color){
@@ -67,28 +59,6 @@ class ProductProvider with ChangeNotifier{
     countProduct = data.length;
     notifyListeners();
   }
-
-  getUsers() async {
-    List<DocumentSnapshot> data = await _userService.getUsers();
-    print('Users ${data.length}');
-    countUser = data.length;
-    notifyListeners();
-  }
-
-  getOrders() async {
-    List<DocumentSnapshot> data = await _orderService.getOrders();
-    print('Order ${data.length}');
-    countOrder = data.length;
-    notifyListeners();
-  }
-
-  getSold() async {
-    List<DocumentSnapshot> data = await _orderService.getSold();
-    print('Sold ${data.length}');
-    countSold = data.length;
-    notifyListeners();
-  }
-
 
   Future<bool> addProduct(String name, price, oldPrice, String desc, String color, File images,
       /*int qty, String category,*/ String brand, bool sale, bool featured) async{

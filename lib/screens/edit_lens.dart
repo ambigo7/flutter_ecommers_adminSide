@@ -74,7 +74,7 @@ class _EditLensState extends State<EditLens> {
         title: Padding(
           padding: const EdgeInsets.only(left:80),
           child: Text(
-            'Update Eyeglass',
+            'Update Lens',
             style: TextStyle(color: blue),
           ),
         ),
