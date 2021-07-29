@@ -163,7 +163,8 @@ class _AdminState extends State<Admin> {
         return Column(
           children: <Widget>[
             ListTile(
-              subtitle: FlatButton.icon(
+             //TODO: Masih belum ketemu caranya, nanti aja!!!!
+/*              subtitle: FlatButton.icon(
                 onPressed: null,
                 icon: Icon(
                   Icons.check_outlined,
@@ -174,12 +175,11 @@ class _AdminState extends State<Admin> {
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 30.0, color: Colors.green)),
               ),
-/*              title: Text( //TODO: Masih belum ketemu caranya, nanti aja!!!!
+              title: Text(
                 'Revenue',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 24.0, color: Colors.grey),
-              ),*/
-            ),
+                style: TextStyle(fontSize: 24.0, color: Colors.grey),*/
+              ),
             Expanded(
                 child: GridView(gridDelegate:
                   SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
