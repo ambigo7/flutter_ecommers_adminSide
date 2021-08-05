@@ -140,12 +140,12 @@ class _AdminState extends State<Admin> {
               if (details.primaryVelocity > 0) {
                 // User swiped Left
                 setState(() {
-                  _selectedPage = Page.manage;
+                  _selectedPage = Page.dashboard;
                 });
               } else if (details.primaryVelocity < 0) {
                 // User swiped Right
                 setState(() {
-                  _selectedPage = Page.dashboard;
+                  _selectedPage = Page.manage;
                 });
               }
             },
@@ -162,9 +162,9 @@ class _AdminState extends State<Admin> {
       case Page.dashboard:
         return Column(
           children: <Widget>[
-            ListTile(
-             //TODO: Masih belum ketemu caranya, nanti aja!!!!
-/*              subtitle: FlatButton.icon(
+            //TODO: Masih belum ketemu caranya hitung revenue, next update aja!!!!
+/*            ListTile(
+              subtitle: FlatButton.icon(
                 onPressed: null,
                 icon: Icon(
                   Icons.check_outlined,
@@ -178,8 +178,9 @@ class _AdminState extends State<Admin> {
               title: Text(
                 'Revenue',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 24.0, color: Colors.grey),*/
+                style: TextStyle(fontSize: 24.0, color: Colors.grey),
               ),
+            ),*/
             Expanded(
                 child: GridView(gridDelegate:
                   SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
